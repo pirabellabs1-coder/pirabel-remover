@@ -193,6 +193,7 @@
         clearOverlay();
         dropzone.style.display = 'none';
         editor.classList.add('active');
+        document.body.classList.add('editor-active');
         document.getElementById('compareWrap').classList.remove('active');
         setStatus(img.width + ' x ' + img.height + ' px');
         // Update dimensions in statusbar
@@ -371,6 +372,7 @@
     clearOverlay();
     ctx.clearRect(0, 0, imgCanvas.width, imgCanvas.height);
     editor.classList.remove('active');
+    document.body.classList.remove('editor-active');
     dropzone.style.display = 'block';
     fileInput.value = '';
     document.getElementById('compareWrap').classList.remove('active');
