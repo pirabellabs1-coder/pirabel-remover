@@ -68,15 +68,54 @@ window.PirabelAuth = (function() {
 
   async function loadProfile() {
     if (!currentUser) return null;
-    const { data, error } = await supabase
+
+    let { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', currentUser.id)
       .single();
 
-    if (error) {
-      console.error('Erreur chargement profil:', error);
-      return null;
+    // Profile not found — auto-create it
+    if (error || !data) {
+      console.warn('Profil introuvable, creation automatique...');
+      const name = (currentUser.user_metadata && currentUser.user_metadata.name)
+        || currentUser.email.split('@')[0];
+      const { data: created, error: createErr } = await supabase
+        .from('profiles')
+        .upsert({
+          id: currentUser.id,
+          email: currentUser.email,
+          name: name,
+          plan: 'free',
+          monthly_usage: 0,
+          monthly_reset_month: getCurrentMonth(),
+          payg_credits: 0,
+          total_images_processed: 0,
+          referral_count: 0,
+          bonus_credits: 0
+        }, { onConflict: 'id' })
+        .select()
+        .single();
+
+      if (createErr) {
+        console.error('Impossible de creer le profil:', createErr);
+        // Last resort: build a minimal profile in memory so the app works
+        currentProfile = {
+          id: currentUser.id,
+          email: currentUser.email,
+          name: name,
+          plan: 'free',
+          monthly_usage: 0,
+          monthly_reset_month: getCurrentMonth(),
+          payg_credits: 0,
+          total_images_processed: 0,
+          referral_count: 0,
+          bonus_credits: 0,
+          created_at: new Date().toISOString()
+        };
+        return currentProfile;
+      }
+      data = created;
     }
 
     // Auto-reset monthly counter if new month
