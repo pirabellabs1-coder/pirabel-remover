@@ -119,7 +119,7 @@
       pushHistory();
       const filtered = E.applyFilter(canvas, selectedFilter);
       replaceCanvas(filtered);
-      showToast('✓ Filtre appliqué', 'success');
+      showToast('Filtre applique', 'success');
     });
   }
 
@@ -241,7 +241,7 @@
         color: `rgba(255, 255, 255, ${opacity})`
       });
       replaceCanvas(result);
-      showToast('✓ Watermark ajouté', 'success');
+      showToast('Watermark ajoute', 'success');
     });
   }
 
@@ -259,7 +259,7 @@
   if (stickerGrid && stickerCats) {
     // Category buttons
     const categories = E.STICKER_CATEGORIES;
-    const catNames = { smileys: '😀 Smileys', hands: '👋 Mains', hearts: '❤️ Coeurs', nature: '🌟 Nature', objects: '👑 Objets', fun: '🎉 Fun' };
+    const catNames = { smileys: 'Smileys', hands: 'Mains', hearts: 'Coeurs', nature: 'Nature', objects: 'Objets', fun: 'Fun' };
     let activeCategory = 'smileys';
 
     function renderStickerCategory(catId) {
@@ -334,7 +334,7 @@
     pushHistory();
     const result = E.addStickerToCanvas(canvas, selectedSticker, x, y, size);
     replaceCanvas(result);
-    showToast('✓ Sticker placé', 'success');
+    showToast('Sticker place', 'success');
   });
 
   // ============================================================
@@ -560,7 +560,7 @@
       const octx = document.getElementById('overlay').getContext('2d');
       octx.clearRect(0, 0, overlay.width, overlay.height);
       deactivateAnnotationMode();
-      showToast('✓ Annotations appliquées', 'success');
+      showToast('Annotations appliquees', 'success');
     });
   }
 
@@ -630,7 +630,7 @@
       adjBrightness.value = 100; adjBrightnessVal.textContent = '100%';
       adjContrast.value = 100; adjContrastVal.textContent = '100%';
       adjSaturation.value = 100; adjSaturationVal.textContent = '100%';
-      showToast('✓ Réglages appliqués', 'success');
+      showToast('Reglages appliques', 'success');
     });
   }
 
@@ -719,7 +719,7 @@
         </div>
         <div class="preset-actions">
           <button class="btn" data-load="${index}" style="padding:6px 10px; font-size:11px;">Charger</button>
-          <button class="btn btn-danger" data-del="${index}" style="padding:6px 10px; font-size:11px;">✕</button>
+          <button class="btn btn-danger" data-del="${index}" style="padding:6px 10px; font-size:11px;">X</button>
         </div>
       `;
       presetsList.appendChild(div);
@@ -731,7 +731,7 @@
         const presets = E.loadPresets();
         if (presets[idx]) {
           applyPresetConfig(presets[idx].config);
-          showToast('✓ Preset chargé', 'success');
+          showToast('Preset charge', 'success');
         }
       });
     });
@@ -752,7 +752,7 @@
       E.savePreset(name, getCurrentConfig());
       presetNameInput.value = '';
       renderPresets();
-      showToast('✓ Preset sauvegardé', 'success');
+      showToast('Preset sauvegarde', 'success');
     });
   }
 
@@ -832,7 +832,7 @@
       } catch (e) {}
 
       const successEl = document.getElementById('ratingSuccess');
-      successEl.textContent = 'Merci pour ton avis ! 🎉';
+      successEl.textContent = 'Merci pour ton avis !';
       successEl.classList.add('active');
       submitRatingBtn.disabled = true;
       setTimeout(() => {
@@ -885,7 +885,7 @@
         localStorage.setItem('pirabel_newsletter', JSON.stringify(subs));
       }
 
-      sucEl.textContent = '✓ Inscrit ! Tu recevras nos prochaines actus.';
+      sucEl.textContent = 'Inscrit ! Tu recevras nos prochaines actus.';
       sucEl.classList.add('active');
       document.getElementById('newsletterEmail').value = '';
       newsletterSubBtn.disabled = true;
