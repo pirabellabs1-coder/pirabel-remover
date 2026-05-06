@@ -74,8 +74,15 @@ BEGIN
     NEW.email,
     COALESCE(NEW.raw_user_meta_data->>'name', split_part(NEW.email, '@', 1)),
     TO_CHAR(NOW(), 'YYYY-MM')
-  );
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    email = EXCLUDED.email,
+    name = COALESCE(EXCLUDED.name, public.profiles.name);
   RETURN NEW;
+EXCEPTION
+  WHEN others THEN
+    RAISE LOG 'handle_new_user error for %: %', NEW.id, SQLERRM;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
