@@ -43,7 +43,7 @@
         <span class="brand-sub">Logo Remover</span>
       </div>
     </a>
-    <a href="index.html" class="icon-btn" title="Accueil">←</a>
+    <a href="index.html" class="icon-btn" title="Accueil">Accueil</a>
   </div>
 </nav>
 
@@ -73,7 +73,7 @@
       <label class="form-label" for="loginPassword">Mot de passe</label>
       <div class="password-row">
         <input class="form-input" type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required>
-        <button type="button" class="password-toggle" data-target="loginPassword">👁️</button>
+        <button type="button" class="password-toggle" data-target="loginPassword">Voir</button>
       </div>
       <a href="#" class="forgot-link" id="forgotLink">Mot de passe oublié ?</a>
     </div>
@@ -104,14 +104,14 @@
       <label class="form-label" for="registerPassword">Mot de passe (min. 6 caractères)</label>
       <div class="password-row">
         <input class="form-input" type="password" id="registerPassword" placeholder="••••••••" autocomplete="new-password" required minlength="6">
-        <button type="button" class="password-toggle" data-target="registerPassword">👁️</button>
+        <button type="button" class="password-toggle" data-target="registerPassword">Voir</button>
       </div>
     </div>
 
     <div class="form-group">
       <label class="form-label" for="registerReferral">Code de parrainage (optionnel)</label>
       <input class="form-input" type="text" id="registerReferral" placeholder="Code reçu d'un ami" maxlength="10" style="text-transform:uppercase;">
-      <p class="text-tertiary text-sm mt-1">🎁 Recevez 5 images gratuites bonus !</p>
+      <p class="text-tertiary text-sm mt-1">Recevez 5 images gratuites bonus !</p>
     </div>
 
     <button type="submit" class="btn btn-primary btn-block" id="registerBtn">Créer mon compte</button>
@@ -139,15 +139,15 @@
       <input class="form-input" type="email" id="forgotEmail" placeholder="ton@email.com" required>
     </div>
 
-    <button type="submit" class="btn btn-primary btn-block" id="forgotBtn">📧 Envoyer le lien</button>
+    <button type="submit" class="btn btn-primary btn-block" id="forgotBtn">Envoyer le lien</button>
 
     <div class="auth-link">
-      <a href="#" data-switch="login">← Retour à la connexion</a>
+      <a href="#" data-switch="login">Retour a la connexion</a>
     </div>
   </form>
 
   <p class="text-tertiary text-sm text-center mt-3">
-    🔒 Tes comptes sont stockés en sécurité et accessibles depuis tous tes appareils.
+    Tes comptes sont stockes en sécurité et accessibles depuis tous tes appareils.
   </p>
 </div>
 
@@ -187,7 +187,7 @@
   // If already logged in, redirect
   const existingUser = window.PirabelAuth.getCurrentUser();
   if (existingUser && mode !== 'reset') {
-    showFormMsg('login', '✓ Déjà connecté. Redirection...', 'success');
+    showFormMsg('login', 'Deja connecte. Redirection...', 'success');
     setTimeout(() => window.location.href = next, 600);
   }
 
@@ -229,7 +229,7 @@
     btn.addEventListener('click', () => {
       const input = document.getElementById(btn.dataset.target);
       input.type = input.type === 'password' ? 'text' : 'password';
-      btn.textContent = input.type === 'password' ? '👁️' : '🙈';
+      btn.textContent = input.type === 'password' ? 'Voir' : 'Masquer';
     });
   });
 
@@ -257,7 +257,7 @@
     btn.textContent = 'Connexion...';
     try {
       await window.PirabelAuth.login(email, password);
-      showFormMsg('login', '✓ Connexion réussie ! Redirection...', 'success');
+      showFormMsg('login', 'Connexion reussie ! Redirection...', 'success');
       setTimeout(() => window.location.href = next, 800);
     } catch (err) {
       showFormMsg('login', err.message, 'error');
@@ -283,14 +283,14 @@
       if (referralCode) {
         try {
           const result = await window.PirabelAuth.applyReferralCode(referralCode);
-          showFormMsg('register', '🎉 Compte créé ! +5 crédits bonus reçus. Redirection...', 'success');
+          showFormMsg('register', 'Compte cree ! +5 crédits bonus reçus. Redirection...', 'success');
         } catch (refErr) {
           // L'inscription a marché mais le code est invalide
           console.warn('Code parrainage invalide:', refErr.message);
-          showFormMsg('register', '🎉 Compte créé (code parrainage non valide). Redirection...', 'success');
+          showFormMsg('register', 'Compte cree (code parrainage non valide). Redirection...', 'success');
         }
       } else {
-        showFormMsg('register', '🎉 Compte créé ! Redirection...', 'success');
+        showFormMsg('register', 'Compte cree ! Redirection...', 'success');
       }
 
       setTimeout(() => window.location.href = next, 1200);
@@ -310,12 +310,12 @@
     btn.textContent = 'Envoi...';
     try {
       await window.PirabelAuth.resetPassword(email);
-      showFormMsg('forgot', '✓ Email envoyé ! Vérifie ta boîte mail (et spams).', 'success');
+      showFormMsg('forgot', 'Email envoye ! Vérifie ta boîte mail (et spams).', 'success');
     } catch (err) {
       showFormMsg('forgot', err.message, 'error');
     }
     btn.disabled = false;
-    btn.textContent = '📧 Envoyer le lien';
+    btn.textContent = 'Envoyer le lien';
   });
 
   // Init mode from URL
@@ -327,7 +327,7 @@
   if (refCode) {
     document.getElementById('registerReferral').value = refCode.toUpperCase();
     switchTab('register');
-    showFormMsg('register', '🎁 Code de parrainage détecté ! Tu recevras 5 crédits bonus.', 'success');
+    showFormMsg('register', 'Code de parrainage détecté ! Tu recevras 5 crédits bonus.', 'success');
   }
 })();
 </script>

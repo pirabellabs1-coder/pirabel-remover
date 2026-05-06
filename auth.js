@@ -327,7 +327,7 @@ window.PirabelAuth = (function() {
       return {
         type: 'payg',
         name: 'Pay-as-you-go',
-        icon: '💵',
+        icon: '--',
         unlimited: false,
         batch: false,
         credits: currentProfile.payg_credits,
@@ -339,7 +339,7 @@ window.PirabelAuth = (function() {
     return {
       type: 'free',
       name: 'Gratuit',
-      icon: '🆓',
+      icon: 'FREE',
       unlimited: false,
       batch: false,
       freeRemaining: fr,

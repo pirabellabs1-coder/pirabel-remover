@@ -193,7 +193,7 @@
         dropzone.style.display = 'none';
         editor.classList.add('active');
         document.getElementById('compareWrap').classList.remove('active');
-        setStatus('✓ ' + img.width + ' × ' + img.height + ' px');
+        setStatus(img.width + ' x ' + img.height + ' px');
       };
       img.onerror = () => showToast('Image invalide', 'error');
       img.src = e.target.result;
@@ -385,7 +385,7 @@
     }
     clearOverlay();
     selection = null;
-    showToast('✓ Suppression appliquée', 'success');
+    showToast('Suppression appliquee', 'success');
     setStatus('Tu peux annuler, comparer ou télécharger');
   });
 
@@ -569,7 +569,7 @@
       a.click();
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 1500);
-      showToast('✓ Téléchargé', 'success');
+      showToast('Telecharge', 'success');
       saveToHistory(imgCanvas);
     }, mime, quality);
   });
@@ -624,7 +624,7 @@
         if (i < results.length - 1) await new Promise(r => setTimeout(r, 300));
         URL.revokeObjectURL(url);
       }
-      showToast(`✓ ${results.length} fichiers exportés (PNG + JPG + WEBP)`, 'success');
+      showToast(`${results.length} fichiers exportes (PNG + JPG + WEBP)`, 'success');
       saveToHistory(imgCanvas);
     } catch (err) {
       showToast('Erreur export', 'error');
@@ -686,8 +686,8 @@
   function getStatusText(s) {
     return s === 'pending' ? 'En attente' :
            s === 'processing' ? 'Traitement...' :
-           s === 'done' ? '✓ Terminé' :
-           s === 'error' ? '✗ Erreur' : s;
+           s === 'done' ? 'Termine' :
+           s === 'error' ? 'Erreur' : s;
   }
 
   document.getElementById('batchProcessBtn').addEventListener('click', async () => {
@@ -713,7 +713,7 @@
       }
       renderBatchList();
     }
-    batchStatus.textContent = `✓ ${batchResults.length} image(s) traitée(s)`;
+    batchStatus.textContent = `${batchResults.length} image(s) traitee(s)`;
     batchStatus.className = 'status success';
     document.getElementById('batchDownloadBtn').disabled = false;
     updateQuotaUI();
@@ -872,7 +872,7 @@
       await new Promise(r => setTimeout(r, 250));
       URL.revokeObjectURL(url);
     }
-    batchStatus.textContent = '✓ ' + batchResults.length + ' téléchargements';
+    batchStatus.textContent = batchResults.length + ' telechargements';
     showToast('Téléchargements lancés', 'success');
   });
 

@@ -58,7 +58,7 @@ window.PirabelTheme = (function() {
 
     // Update toggle buttons
     document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
-      btn.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+      btn.textContent = currentTheme === 'dark' ? 'LT' : 'DK';
       btn.title = currentTheme === 'dark' ? 'Mode clair' : 'Mode sombre';
     });
 

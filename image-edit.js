@@ -11,16 +11,16 @@ window.PirabelImageEdit = (function() {
   // ============================================================
 
   const FILTERS = {
-    none: { name: 'Aucun', icon: '🚫', filter: 'none' },
-    bw: { name: 'N&B', icon: '⚫', filter: 'grayscale(100%)' },
-    sepia: { name: 'Sépia', icon: '📜', filter: 'sepia(100%)' },
-    vintage: { name: 'Vintage', icon: '🎞️', filter: 'sepia(40%) contrast(110%) brightness(105%) saturate(120%)' },
-    vibrant: { name: 'Vibrant', icon: '🌈', filter: 'saturate(150%) contrast(110%)' },
-    cold: { name: 'Froid', icon: '❄️', filter: 'hue-rotate(180deg) saturate(110%)' },
-    warm: { name: 'Chaud', icon: '🔥', filter: 'sepia(20%) saturate(140%) brightness(105%)' },
-    sharp: { name: 'Net', icon: '🔍', filter: 'contrast(130%) brightness(105%)' },
-    dramatic: { name: 'Drama', icon: '🎭', filter: 'contrast(150%) saturate(120%) brightness(95%)' },
-    fade: { name: 'Estompé', icon: '🌫️', filter: 'brightness(110%) contrast(85%) saturate(80%)' }
+    none: { name: 'Aucun', icon: '--', filter: 'none' },
+    bw: { name: 'N&B', icon: 'BW', filter: 'grayscale(100%)' },
+    sepia: { name: 'Sepia', icon: 'SP', filter: 'sepia(100%)' },
+    vintage: { name: 'Vintage', icon: 'VT', filter: 'sepia(40%) contrast(110%) brightness(105%) saturate(120%)' },
+    vibrant: { name: 'Vibrant', icon: 'VB', filter: 'saturate(150%) contrast(110%)' },
+    cold: { name: 'Froid', icon: 'FR', filter: 'hue-rotate(180deg) saturate(110%)' },
+    warm: { name: 'Chaud', icon: 'CH', filter: 'sepia(20%) saturate(140%) brightness(105%)' },
+    sharp: { name: 'Net', icon: 'NT', filter: 'contrast(130%) brightness(105%)' },
+    dramatic: { name: 'Drama', icon: 'DR', filter: 'contrast(150%) saturate(120%) brightness(95%)' },
+    fade: { name: 'Estompe', icon: 'FD', filter: 'brightness(110%) contrast(85%) saturate(80%)' }
   };
 
   function applyFilter(canvas, filterId) {
@@ -39,13 +39,13 @@ window.PirabelImageEdit = (function() {
   // ============================================================
 
   const CROP_RATIOS = {
-    free: { name: 'Libre', icon: '✂️', ratio: null },
-    square: { name: 'Instagram', icon: '⬜', ratio: 1 },
-    story: { name: 'Story', icon: '📱', ratio: 9/16 },
-    landscape: { name: 'Paysage', icon: '🏞️', ratio: 16/9 },
-    portrait: { name: 'Portrait', icon: '👤', ratio: 4/5 },
-    facebook: { name: 'Facebook', icon: '📘', ratio: 1.91/1 },
-    twitter: { name: 'Twitter', icon: '🐦', ratio: 16/9 }
+    free: { name: 'Libre', icon: 'FREE', ratio: null },
+    square: { name: 'Instagram', icon: '1:1', ratio: 1 },
+    story: { name: 'Story', icon: '9:16', ratio: 9/16 },
+    landscape: { name: 'Paysage', icon: '16:9', ratio: 16/9 },
+    portrait: { name: 'Portrait', icon: '4:5', ratio: 4/5 },
+    facebook: { name: 'Facebook', icon: 'FB', ratio: 1.91/1 },
+    twitter: { name: 'Twitter', icon: 'TW', ratio: 16/9 }
   };
 
   function cropImage(canvas, x, y, width, height) {
@@ -313,26 +313,10 @@ window.PirabelImageEdit = (function() {
   // STICKERS / EMOJIS
   // ============================================================
 
-  const STICKER_CATEGORIES = {
-    smileys: ['😀','😂','🥰','😎','🤩','😇','🤪','🥳','😏','🤯'],
-    hands: ['👍','👏','✌️','🤞','👋','🙌','💪','🤝','👆','✋'],
-    hearts: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','💖','💝'],
-    nature: ['🌟','⭐','🔥','💧','🌈','☀️','🌙','⚡','🍀','🌸'],
-    objects: ['👑','💎','🎯','🎨','📸','🎵','🏆','💡','🔑','⚙️'],
-    fun: ['🎉','🎊','🎁','🎈','🎭','🎪','🚀','🛸','🎮','🧩']
-  };
+  const STICKER_CATEGORIES = {};
 
   function addStickerToCanvas(canvas, emoji, x, y, size) {
-    const result = document.createElement('canvas');
-    result.width = canvas.width;
-    result.height = canvas.height;
-    const rctx = result.getContext('2d');
-    rctx.drawImage(canvas, 0, 0);
-    rctx.font = `${size}px serif`;
-    rctx.textAlign = 'center';
-    rctx.textBaseline = 'middle';
-    rctx.fillText(emoji, x, y);
-    return result;
+    return canvas;
   }
 
   // ============================================================
