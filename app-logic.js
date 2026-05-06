@@ -150,7 +150,7 @@
   // ============================================================
   function setStatus(msg, kind) {
     status.textContent = msg || '';
-    status.className = 'status' + (kind ? ' ' + kind : '');
+    status.className = 'ws-status-text' + (kind ? ' ' + kind : '');
   }
 
   function showToast(msg, kind) {
@@ -187,6 +187,7 @@
         originalImage = img;
         originalImageData = ctx.getImageData(0, 0, img.width, img.height);
         history = [originalImageData];
+        window.appHistory = history;
         selection = null;
         hasIncrementedForCurrentImage = false;
         clearOverlay();
@@ -194,6 +195,11 @@
         editor.classList.add('active');
         document.getElementById('compareWrap').classList.remove('active');
         setStatus(img.width + ' x ' + img.height + ' px');
+        // Update dimensions in statusbar
+        const dimEl = document.getElementById('statusDimensions');
+        if (dimEl) dimEl.textContent = img.width + ' x ' + img.height + ' px';
+        // Auto fit zoom
+        if (window.pirabelZoom) setTimeout(() => window.pirabelZoom.zoomFit(), 50);
       };
       img.onerror = () => showToast('Image invalide', 'error');
       img.src = e.target.result;
@@ -286,7 +292,10 @@
   imgCanvas.style.pointerEvents = 'auto';
   imgCanvas.style.touchAction = 'none';
 
+  // Selection drawing — only when NOT in annotation/sticker/text mode
   imgCanvas.addEventListener('pointerdown', e => {
+    // Skip selection if overlay is capturing (annotation mode)
+    if (overlay.style.pointerEvents === 'auto') return;
     e.preventDefault();
     drawing = true;
     startPt = getCanvasCoords(e);
@@ -295,6 +304,7 @@
   });
   imgCanvas.addEventListener('pointermove', e => {
     if (!drawing) return;
+    if (overlay.style.pointerEvents === 'auto') return;
     const p = getCanvasCoords(e);
     selection = {
       x: Math.min(startPt.x, p.x),
@@ -355,6 +365,7 @@
     originalImage = null;
     originalImageData = null;
     history = [];
+    window.appHistory = history;
     selection = null;
     hasIncrementedForCurrentImage = false;
     clearOverlay();
@@ -364,6 +375,8 @@
     fileInput.value = '';
     document.getElementById('compareWrap').classList.remove('active');
     setStatus('');
+    const dimEl = document.getElementById('statusDimensions');
+    if (dimEl) dimEl.textContent = '';
   });
 
   // ============================================================
@@ -989,6 +1002,20 @@
     } else if (e.key === 'Escape') {
       document.getElementById('clearBtn').click();
     }
+    // Zoom shortcuts
+    if ((e.ctrlKey || e.metaKey) && (e.key === '=' || e.key === '+')) {
+      e.preventDefault();
+      const btn = document.getElementById('zoomInBtn');
+      if (btn) btn.click();
+    } else if ((e.ctrlKey || e.metaKey) && e.key === '-') {
+      e.preventDefault();
+      const btn = document.getElementById('zoomOutBtn');
+      if (btn) btn.click();
+    } else if ((e.ctrlKey || e.metaKey) && e.key === '0') {
+      e.preventDefault();
+      const btn = document.getElementById('zoomFitBtn');
+      if (btn) btn.click();
+    }
   });
 
   // ============================================================
@@ -1029,6 +1056,28 @@
 
   // Preload Kkiapay
   window.PirabelPayment.preload();
+
+  // ============================================================
+  // EXPOSE pirabelApp API
+  // ============================================================
+  window.pirabelApp = {
+    getCanvas: () => imgCanvas,
+    getCtx: () => ctx,
+    getOverlay: () => overlay,
+    getHistory: () => history,
+    getSelection: () => selection,
+    setSelection: s => { selection = s; drawSelection(); },
+    clearSelection: () => { selection = null; clearOverlay(); },
+    getOriginalImage: () => originalImage,
+    getOriginalImageData: () => originalImageData,
+    loadFile,
+    showToast,
+    setStatus,
+    openModal,
+    closeModal,
+    updateQuotaUI,
+    saveToHistory
+  };
 
   // Init
   updateQuotaUI();
