@@ -10,40 +10,29 @@
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="styles.css">
 <style>
-  .auth-page{min-height:100vh;display:flex;flex-direction:column}
-  .auth-wrap{max-width:420px;margin:0 auto;padding:40px 20px 20px;flex:1;display:flex;flex-direction:column;justify-content:center;animation:authFadeIn .5s ease both}
-  @keyframes authFadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-  .auth-logo{text-align:center;margin-bottom:28px}
-  .auth-logo .logo-mark{width:64px;height:64px;font-size:34px;margin:0 auto;box-shadow:0 8px 32px var(--orange-glow)}
-  .auth-title{text-align:center;font-size:28px;font-weight:800;margin-top:18px;margin-bottom:8px;letter-spacing:-.5px}
-  .auth-subtitle{text-align:center;color:var(--text-secondary);font-size:14px;margin-bottom:32px;line-height:1.5}
-  .auth-tabs{display:flex;background:var(--bg-secondary);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:24px;gap:4px}
-  .auth-tab{flex:1;background:transparent;border:none;color:var(--text-secondary);padding:11px;font-size:14px;font-weight:600;border-radius:8px;cursor:pointer;transition:all .2s;font-family:inherit}
-  .auth-tab.active{background:var(--orange);color:#000}
-  .auth-tab:not(.active):hover{background:var(--bg-tertiary)}
-  .auth-form{display:none}
-  .auth-form.active{display:block;animation:authFadeIn .3s ease both}
-  .auth-link{text-align:center;margin-top:18px;color:var(--text-secondary);font-size:13px}
-  .auth-link a{color:var(--orange);text-decoration:none;font-weight:600}
-  .auth-link a:hover{text-decoration:underline}
-  .password-row{position:relative}
-  .password-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:transparent;border:none;color:var(--text-tertiary);cursor:pointer;padding:4px;display:flex;align-items:center}
-  .password-toggle:hover{color:var(--text-primary)}
-  .forgot-link{display:block;text-align:right;font-size:12px;color:var(--orange);margin-top:6px;text-decoration:none}
-  .forgot-link:hover{text-decoration:underline}
-  .loading-overlay{position:fixed;inset:0;background:rgba(10,10,10,.85);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:1000}
-  .loading-overlay.active{display:flex}
-  .loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--orange);border-radius:50%;animation:spin .8s linear infinite}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .auth-footer{text-align:center;padding:20px;color:var(--text-tertiary);font-size:12px}
-  .auth-footer a{color:var(--orange);text-decoration:none}
-  .auth-divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--text-tertiary);font-size:12px}
-  .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
-  .auth-security{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text-tertiary);font-size:12px;margin-top:24px;padding:12px;background:var(--bg-secondary);border-radius:10px;border:1px solid var(--border)}
-  .auth-security svg{flex-shrink:0;color:var(--success)}
+  .auth-wrap { max-width: 420px; margin: 0 auto; padding: 40px 20px 20px; }
+  .auth-logo { text-align: center; margin-bottom: 24px; }
+  .auth-logo .logo-mark { width: 60px; height: 60px; font-size: 32px; margin: 0 auto; }
+  .auth-title { text-align: center; font-size: 26px; font-weight: 800; margin-top: 16px; margin-bottom: 8px; }
+  .auth-subtitle { text-align: center; color: var(--text-secondary); font-size: 14px; margin-bottom: 28px; }
+  .auth-tabs { display: flex; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 4px; margin-bottom: 20px; gap: 4px; }
+  .auth-tab { flex: 1; background: transparent; border: none; color: var(--text-secondary); padding: 10px; font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .auth-tab.active { background: var(--orange); color: #000; }
+  .auth-form { display: none; }
+  .auth-form.active { display: block; }
+  .auth-link { text-align: center; margin-top: 16px; color: var(--text-secondary); font-size: 13px; }
+  .auth-link a { color: var(--orange); text-decoration: none; font-weight: 600; }
+  .password-row { position: relative; }
+  .password-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--text-tertiary); cursor: pointer; font-size: 14px; }
+  .forgot-link { display: block; text-align: right; font-size: 12px; color: var(--orange); margin-top: 6px; text-decoration: none; }
+  .forgot-link:hover { text-decoration: underline; }
+  .loading-overlay { position: fixed; inset: 0; background: rgba(10,10,10,0.8); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; }
+  .loading-overlay.active { display: flex; }
+  .loading-spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
-<body class="auth-page">
+<body>
 
 <nav class="app-nav">
   <div class="app-nav-inner">
@@ -54,10 +43,7 @@
         <span class="brand-sub">Logo Remover</span>
       </div>
     </a>
-    <div class="nav-actions">
-      <button class="icon-btn theme-toggle-btn" id="themeToggle" title="Theme"></button>
-      <a href="index.html" class="icon-btn" title="Accueil" id="navHome"></a>
-    </div>
+    <a href="index.html" class="icon-btn" title="Accueil">←</a>
   </div>
 </nav>
 
@@ -65,7 +51,7 @@
   <div class="auth-logo">
     <div class="logo-mark">P</div>
     <div class="auth-title" id="authTitle">Bienvenue</div>
-    <div class="auth-subtitle" id="authSubtitle">Connecte-toi ou cree ton compte</div>
+    <div class="auth-subtitle" id="authSubtitle">Connecte-toi ou crée ton compte</div>
   </div>
 
   <div class="auth-tabs">
@@ -86,16 +72,16 @@
     <div class="form-group">
       <label class="form-label" for="loginPassword">Mot de passe</label>
       <div class="password-row">
-        <input class="form-input" type="password" id="loginPassword" placeholder="Minimum 6 caracteres" autocomplete="current-password" required>
-        <button type="button" class="password-toggle" data-target="loginPassword" id="loginPwToggle"></button>
+        <input class="form-input" type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required>
+        <button type="button" class="password-toggle" data-target="loginPassword">👁️</button>
       </div>
-      <a href="#" class="forgot-link" id="forgotLink">Mot de passe oublie ?</a>
+      <a href="#" class="forgot-link" id="forgotLink">Mot de passe oublié ?</a>
     </div>
 
-    <button type="submit" class="btn btn-primary btn-block btn-large" id="loginBtn">Se connecter</button>
+    <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Se connecter</button>
 
     <div class="auth-link">
-      Pas encore de compte ? <a href="#" data-switch="register">Creer un compte</a>
+      Pas encore de compte ? <a href="#" data-switch="register">Créer un compte</a>
     </div>
   </form>
 
@@ -115,27 +101,27 @@
     </div>
 
     <div class="form-group">
-      <label class="form-label" for="registerPassword">Mot de passe (min. 6 caracteres)</label>
+      <label class="form-label" for="registerPassword">Mot de passe (min. 6 caractères)</label>
       <div class="password-row">
-        <input class="form-input" type="password" id="registerPassword" placeholder="Minimum 6 caracteres" autocomplete="new-password" required minlength="6">
-        <button type="button" class="password-toggle" data-target="registerPassword" id="regPwToggle"></button>
+        <input class="form-input" type="password" id="registerPassword" placeholder="••••••••" autocomplete="new-password" required minlength="6">
+        <button type="button" class="password-toggle" data-target="registerPassword">👁️</button>
       </div>
     </div>
 
     <div class="form-group">
       <label class="form-label" for="registerReferral">Code de parrainage (optionnel)</label>
-      <input class="form-input" type="text" id="registerReferral" placeholder="Code recu d'un ami" maxlength="10" style="text-transform:uppercase">
-      <p class="text-tertiary" style="font-size:11px;margin-top:4px">Recevez 5 images gratuites bonus avec un code valide</p>
+      <input class="form-input" type="text" id="registerReferral" placeholder="Code reçu d'un ami" maxlength="10" style="text-transform:uppercase;">
+      <p class="text-tertiary text-sm mt-1">🎁 Recevez 5 images gratuites bonus !</p>
     </div>
 
-    <button type="submit" class="btn btn-primary btn-block btn-large" id="registerBtn">Creer mon compte</button>
+    <button type="submit" class="btn btn-primary btn-block" id="registerBtn">Créer mon compte</button>
 
-    <p class="text-tertiary" style="font-size:11px;text-align:center;margin-top:10px">
-      En creant un compte, tu acceptes l'utilisation a des fins personnelles.
+    <p class="text-tertiary text-sm text-center mt-2">
+      En créant un compte, tu acceptes l'utilisation à des fins personnelles.
     </p>
 
     <div class="auth-link">
-      Deja un compte ? <a href="#" data-switch="login">Se connecter</a>
+      Déjà un compte ? <a href="#" data-switch="login">Se connecter</a>
     </div>
   </form>
 
@@ -144,8 +130,8 @@
     <div class="form-error" id="forgotError"></div>
     <div class="form-success" id="forgotSuccess"></div>
 
-    <p class="text-secondary" style="font-size:13px;margin-bottom:16px">
-      Entre ton email pour recevoir un lien de reinitialisation.
+    <p class="text-secondary text-sm mb-3">
+      Entre ton email pour recevoir un lien de réinitialisation.
     </p>
 
     <div class="form-group">
@@ -153,21 +139,16 @@
       <input class="form-input" type="email" id="forgotEmail" placeholder="ton@email.com" required>
     </div>
 
-    <button type="submit" class="btn btn-primary btn-block btn-large" id="forgotBtn">Envoyer le lien</button>
+    <button type="submit" class="btn btn-primary btn-block" id="forgotBtn">📧 Envoyer le lien</button>
 
     <div class="auth-link">
-      <a href="#" data-switch="login">Retour a la connexion</a>
+      <a href="#" data-switch="login">← Retour à la connexion</a>
     </div>
   </form>
 
-  <div class="auth-security">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-    Comptes securises et synchronises sur tous tes appareils
-  </div>
-</div>
-
-<div class="auth-footer">
-  <a href="https://pirabellabs.com" target="_blank">Pirabel Labs</a> · Cotonou, Benin
+  <p class="text-tertiary text-sm text-center mt-3">
+    🔒 Tes comptes sont stockés en sécurité et accessibles depuis tous tes appareils.
+  </p>
 </div>
 
 <!-- Loading overlay -->
@@ -177,57 +158,49 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- Supabase JS -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
-<script src="icons.js"></script>
-<script src="i18n.js"></script>
-<script src="theme.js"></script>
 <script src="auth.js"></script>
 <script>
 (async function() {
   'use strict';
 
-  // Icons
-  var I = window.PirabelIcons;
-  if (I) {
-    document.getElementById('themeToggle').innerHTML = I.svg('sun', 16);
-    document.getElementById('navHome').innerHTML = I.svg('home', 16);
-    document.getElementById('loginPwToggle').innerHTML = I.svg('eye', 16);
-    document.getElementById('regPwToggle').innerHTML = I.svg('eye', 16);
-  }
+  const params = new URLSearchParams(window.location.search);
+  const mode = params.get('mode') || 'login';
+  const next = params.get('next') || 'app.html';
 
-  // Theme toggle
-  document.getElementById('themeToggle').addEventListener('click', function() { window.PirabelTheme.toggleTheme(); });
+  const overlay = document.getElementById('loadingOverlay');
 
-  var params = new URLSearchParams(window.location.search);
-  var mode = params.get('mode') || 'login';
-  var next = params.get('next') || 'app.html';
-
-  var overlay = document.getElementById('loadingOverlay');
   function showLoading() { overlay.classList.add('active'); }
   function hideLoading() { overlay.classList.remove('active'); }
 
   // Init Supabase
   showLoading();
-  try { await window.PirabelAuth.init(); } catch (err) { console.error('Init error:', err); }
+  try {
+    await window.PirabelAuth.init();
+  } catch (err) {
+    console.error('Erreur init:', err);
+  }
   hideLoading();
 
   // If already logged in, redirect
-  var existingUser = window.PirabelAuth.getCurrentUser();
+  const existingUser = window.PirabelAuth.getCurrentUser();
   if (existingUser && mode !== 'reset') {
-    showFormMsg('login', 'Deja connecte. Redirection...', 'success');
-    setTimeout(function() { window.location.href = next; }, 600);
+    showFormMsg('login', '✓ Déjà connecté. Redirection...', 'success');
+    setTimeout(() => window.location.href = next, 600);
   }
 
   // Switch tabs
   function switchTab(tab) {
-    document.querySelectorAll('.auth-tab').forEach(function(t) { t.classList.toggle('active', t.dataset.tab === tab); });
-    document.querySelectorAll('.auth-form').forEach(function(f) { f.classList.remove('active'); });
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+    document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
     document.getElementById(tab + 'Form').classList.add('active');
-    var titles = {
-      login: ['Bon retour !', 'Connecte-toi a ton compte'],
-      register: ['Bienvenue', 'Cree ton compte gratuit en 30 secondes'],
-      forgot: ['Mot de passe oublie', 'Recois un lien de reinitialisation']
+
+    const titles = {
+      login: ['Bon retour !', 'Connecte-toi à ton compte'],
+      register: ['Bienvenue', 'Crée ton compte gratuit en 30 secondes'],
+      forgot: ['Mot de passe oublié', 'Reçois un lien de réinitialisation']
     };
     if (titles[tab]) {
       document.getElementById('authTitle').textContent = titles[tab][0];
@@ -235,44 +208,57 @@
     }
   }
 
-  document.querySelectorAll('.auth-tab').forEach(function(tab) {
-    tab.addEventListener('click', function() { switchTab(tab.dataset.tab); });
+  document.querySelectorAll('.auth-tab').forEach(tab => {
+    tab.addEventListener('click', () => switchTab(tab.dataset.tab));
   });
-  document.querySelectorAll('[data-switch]').forEach(function(link) {
-    link.addEventListener('click', function(e) { e.preventDefault(); switchTab(link.dataset.switch); });
+
+  document.querySelectorAll('[data-switch]').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      switchTab(link.dataset.switch);
+    });
   });
-  document.getElementById('forgotLink').addEventListener('click', function(e) { e.preventDefault(); switchTab('forgot'); });
+
+  document.getElementById('forgotLink').addEventListener('click', e => {
+    e.preventDefault();
+    switchTab('forgot');
+  });
 
   // Password toggle
-  document.querySelectorAll('.password-toggle').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var input = document.getElementById(btn.dataset.target);
+  document.querySelectorAll('.password-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.target);
       input.type = input.type === 'password' ? 'text' : 'password';
-      if (I) btn.innerHTML = input.type === 'password' ? I.svg('eye', 16) : I.svg('eye', 16);
+      btn.textContent = input.type === 'password' ? '👁️' : '🙈';
     });
   });
 
   function showFormMsg(formPrefix, msg, kind) {
-    var errorEl = document.getElementById(formPrefix + 'Error');
-    var successEl = document.getElementById(formPrefix + 'Success');
+    const errorEl = document.getElementById(formPrefix + 'Error');
+    const successEl = document.getElementById(formPrefix + 'Success');
     errorEl.classList.remove('active');
     successEl.classList.remove('active');
-    if (kind === 'error') { errorEl.textContent = msg; errorEl.classList.add('active'); }
-    else { successEl.textContent = msg; successEl.classList.add('active'); }
+    if (kind === 'error') {
+      errorEl.textContent = msg;
+      errorEl.classList.add('active');
+    } else {
+      successEl.textContent = msg;
+      successEl.classList.add('active');
+    }
   }
 
   // LOGIN
-  document.getElementById('loginForm').addEventListener('submit', async function(e) {
+  document.getElementById('loginForm').addEventListener('submit', async e => {
     e.preventDefault();
-    var email = document.getElementById('loginEmail').value;
-    var password = document.getElementById('loginPassword').value;
-    var btn = document.getElementById('loginBtn');
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const btn = document.getElementById('loginBtn');
     btn.disabled = true;
     btn.textContent = 'Connexion...';
     try {
       await window.PirabelAuth.login(email, password);
-      showFormMsg('login', 'Connexion reussie ! Redirection...', 'success');
-      setTimeout(function() { window.location.href = next; }, 800);
+      showFormMsg('login', '✓ Connexion réussie ! Redirection...', 'success');
+      setTimeout(() => window.location.href = next, 800);
     } catch (err) {
       showFormMsg('login', err.message, 'error');
       btn.disabled = false;
@@ -281,50 +267,55 @@
   });
 
   // REGISTER
-  document.getElementById('registerForm').addEventListener('submit', async function(e) {
+  document.getElementById('registerForm').addEventListener('submit', async e => {
     e.preventDefault();
-    var name = document.getElementById('registerName').value;
-    var email = document.getElementById('registerEmail').value;
-    var password = document.getElementById('registerPassword').value;
-    var referralCode = document.getElementById('registerReferral').value.trim().toUpperCase();
-    var btn = document.getElementById('registerBtn');
+    const name = document.getElementById('registerName').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    const referralCode = document.getElementById('registerReferral').value.trim().toUpperCase();
+    const btn = document.getElementById('registerBtn');
     btn.disabled = true;
-    btn.textContent = 'Creation...';
+    btn.textContent = 'Création...';
     try {
       await window.PirabelAuth.register(email, password, name);
+
+      // Si code de parrainage, l'appliquer
       if (referralCode) {
         try {
-          await window.PirabelAuth.applyReferralCode(referralCode);
-          showFormMsg('register', 'Compte cree ! +5 credits bonus recus. Redirection...', 'success');
+          const result = await window.PirabelAuth.applyReferralCode(referralCode);
+          showFormMsg('register', '🎉 Compte créé ! +5 crédits bonus reçus. Redirection...', 'success');
         } catch (refErr) {
-          showFormMsg('register', 'Compte cree (code parrainage non valide). Redirection...', 'success');
+          // L'inscription a marché mais le code est invalide
+          console.warn('Code parrainage invalide:', refErr.message);
+          showFormMsg('register', '🎉 Compte créé (code parrainage non valide). Redirection...', 'success');
         }
       } else {
-        showFormMsg('register', 'Compte cree avec succes ! Redirection...', 'success');
+        showFormMsg('register', '🎉 Compte créé ! Redirection...', 'success');
       }
-      setTimeout(function() { window.location.href = next; }, 1200);
+
+      setTimeout(() => window.location.href = next, 1200);
     } catch (err) {
       showFormMsg('register', err.message, 'error');
       btn.disabled = false;
-      btn.textContent = 'Creer mon compte';
+      btn.textContent = 'Créer mon compte';
     }
   });
 
   // FORGOT PASSWORD
-  document.getElementById('forgotForm').addEventListener('submit', async function(e) {
+  document.getElementById('forgotForm').addEventListener('submit', async e => {
     e.preventDefault();
-    var email = document.getElementById('forgotEmail').value;
-    var btn = document.getElementById('forgotBtn');
+    const email = document.getElementById('forgotEmail').value;
+    const btn = document.getElementById('forgotBtn');
     btn.disabled = true;
     btn.textContent = 'Envoi...';
     try {
       await window.PirabelAuth.resetPassword(email);
-      showFormMsg('forgot', 'Email envoye ! Verifie ta boite mail (et spams).', 'success');
+      showFormMsg('forgot', '✓ Email envoyé ! Vérifie ta boîte mail (et spams).', 'success');
     } catch (err) {
       showFormMsg('forgot', err.message, 'error');
     }
     btn.disabled = false;
-    btn.textContent = 'Envoyer le lien';
+    btn.textContent = '📧 Envoyer le lien';
   });
 
   // Init mode from URL
@@ -332,11 +323,11 @@
   if (mode === 'forgot') switchTab('forgot');
 
   // Auto-fill referral code from URL ?ref=XXX
-  var refCode = params.get('ref');
+  const refCode = params.get('ref');
   if (refCode) {
     document.getElementById('registerReferral').value = refCode.toUpperCase();
     switchTab('register');
-    showFormMsg('register', 'Code de parrainage detecte ! Tu recevras 5 credits bonus.', 'success');
+    showFormMsg('register', '🎁 Code de parrainage détecté ! Tu recevras 5 crédits bonus.', 'success');
   }
 })();
 </script>

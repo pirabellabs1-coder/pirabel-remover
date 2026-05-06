@@ -150,7 +150,7 @@
   // ============================================================
   function setStatus(msg, kind) {
     status.textContent = msg || '';
-    status.className = 'ws-status-text' + (kind ? ' ' + kind : '');
+    status.className = 'status' + (kind ? ' ' + kind : '');
   }
 
   function showToast(msg, kind) {
@@ -187,20 +187,13 @@
         originalImage = img;
         originalImageData = ctx.getImageData(0, 0, img.width, img.height);
         history = [originalImageData];
-        window.appHistory = history;
         selection = null;
         hasIncrementedForCurrentImage = false;
         clearOverlay();
         dropzone.style.display = 'none';
         editor.classList.add('active');
-        document.body.classList.add('editor-active');
         document.getElementById('compareWrap').classList.remove('active');
-        setStatus(img.width + ' x ' + img.height + ' px');
-        // Update dimensions in statusbar
-        const dimEl = document.getElementById('statusDimensions');
-        if (dimEl) dimEl.textContent = img.width + ' x ' + img.height + ' px';
-        // Auto fit zoom
-        if (window.pirabelZoom) setTimeout(() => window.pirabelZoom.zoomFit(), 50);
+        setStatus('✓ ' + img.width + ' × ' + img.height + ' px');
       };
       img.onerror = () => showToast('Image invalide', 'error');
       img.src = e.target.result;
@@ -293,10 +286,7 @@
   imgCanvas.style.pointerEvents = 'auto';
   imgCanvas.style.touchAction = 'none';
 
-  // Selection drawing — only when NOT in annotation/sticker/text mode
   imgCanvas.addEventListener('pointerdown', e => {
-    // Skip selection if overlay is capturing (annotation mode)
-    if (overlay.style.pointerEvents === 'auto') return;
     e.preventDefault();
     drawing = true;
     startPt = getCanvasCoords(e);
@@ -305,7 +295,6 @@
   });
   imgCanvas.addEventListener('pointermove', e => {
     if (!drawing) return;
-    if (overlay.style.pointerEvents === 'auto') return;
     const p = getCanvasCoords(e);
     selection = {
       x: Math.min(startPt.x, p.x),
@@ -366,19 +355,15 @@
     originalImage = null;
     originalImageData = null;
     history = [];
-    window.appHistory = history;
     selection = null;
     hasIncrementedForCurrentImage = false;
     clearOverlay();
     ctx.clearRect(0, 0, imgCanvas.width, imgCanvas.height);
     editor.classList.remove('active');
-    document.body.classList.remove('editor-active');
     dropzone.style.display = 'block';
     fileInput.value = '';
     document.getElementById('compareWrap').classList.remove('active');
     setStatus('');
-    const dimEl = document.getElementById('statusDimensions');
-    if (dimEl) dimEl.textContent = '';
   });
 
   // ============================================================
@@ -400,7 +385,7 @@
     }
     clearOverlay();
     selection = null;
-    showToast('Suppression appliquee', 'success');
+    showToast('✓ Suppression appliquée', 'success');
     setStatus('Tu peux annuler, comparer ou télécharger');
   });
 
@@ -584,7 +569,7 @@
       a.click();
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 1500);
-      showToast('Telecharge', 'success');
+      showToast('✓ Téléchargé', 'success');
       saveToHistory(imgCanvas);
     }, mime, quality);
   });
@@ -701,8 +686,8 @@
   function getStatusText(s) {
     return s === 'pending' ? 'En attente' :
            s === 'processing' ? 'Traitement...' :
-           s === 'done' ? 'Termine' :
-           s === 'error' ? 'Erreur' : s;
+           s === 'done' ? '✓ Terminé' :
+           s === 'error' ? '✗ Erreur' : s;
   }
 
   document.getElementById('batchProcessBtn').addEventListener('click', async () => {
@@ -728,7 +713,7 @@
       }
       renderBatchList();
     }
-    batchStatus.textContent = `${batchResults.length} image(s) traitee(s)`;
+    batchStatus.textContent = `✓ ${batchResults.length} image(s) traitée(s)`;
     batchStatus.className = 'status success';
     document.getElementById('batchDownloadBtn').disabled = false;
     updateQuotaUI();
@@ -887,7 +872,7 @@
       await new Promise(r => setTimeout(r, 250));
       URL.revokeObjectURL(url);
     }
-    batchStatus.textContent = batchResults.length + ' telechargements';
+    batchStatus.textContent = '✓ ' + batchResults.length + ' téléchargements';
     showToast('Téléchargements lancés', 'success');
   });
 
@@ -1004,20 +989,6 @@
     } else if (e.key === 'Escape') {
       document.getElementById('clearBtn').click();
     }
-    // Zoom shortcuts
-    if ((e.ctrlKey || e.metaKey) && (e.key === '=' || e.key === '+')) {
-      e.preventDefault();
-      const btn = document.getElementById('zoomInBtn');
-      if (btn) btn.click();
-    } else if ((e.ctrlKey || e.metaKey) && e.key === '-') {
-      e.preventDefault();
-      const btn = document.getElementById('zoomOutBtn');
-      if (btn) btn.click();
-    } else if ((e.ctrlKey || e.metaKey) && e.key === '0') {
-      e.preventDefault();
-      const btn = document.getElementById('zoomFitBtn');
-      if (btn) btn.click();
-    }
   });
 
   // ============================================================
@@ -1058,28 +1029,6 @@
 
   // Preload Kkiapay
   window.PirabelPayment.preload();
-
-  // ============================================================
-  // EXPOSE pirabelApp API
-  // ============================================================
-  window.pirabelApp = {
-    getCanvas: () => imgCanvas,
-    getCtx: () => ctx,
-    getOverlay: () => overlay,
-    getHistory: () => history,
-    getSelection: () => selection,
-    setSelection: s => { selection = s; drawSelection(); },
-    clearSelection: () => { selection = null; clearOverlay(); },
-    getOriginalImage: () => originalImage,
-    getOriginalImageData: () => originalImageData,
-    loadFile,
-    showToast,
-    setStatus,
-    openModal,
-    closeModal,
-    updateQuotaUI,
-    saveToHistory
-  };
 
   // Init
   updateQuotaUI();

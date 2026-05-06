@@ -267,37 +267,6 @@ body::before {
 }
 .hidden { display: none !important; }
 
-/* ============================================================
-   EDITOR FULLSCREEN MODE
-   ============================================================ */
-body.editor-active .container {
-  max-width: 100%;
-  padding: 0;
-}
-body.editor-active .quota-banner,
-body.editor-active .install-banner,
-body.editor-active .tabs,
-body.editor-active .app-footer {
-  display: none !important;
-}
-body.editor-active .card {
-  border: none;
-  border-radius: 0;
-  padding: 0;
-  margin: 0;
-  background: transparent;
-  box-shadow: none;
-}
-body.editor-active::before {
-  display: none;
-}
-body.editor-active .app-nav-inner {
-  max-width: 100%;
-}
-body.editor-active {
-  overflow: hidden;
-}
-
 /* SVG Icon system */
 .pi-icon {
   display: inline-block;
