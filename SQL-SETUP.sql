@@ -1,9 +1,8 @@
 -- ============================================================
 -- PIRABEL REMOVER -- COMPLETE SUPABASE SQL SETUP
 -- ============================================================
--- Execute this ENTIRE file in the Supabase SQL Editor to create
--- all tables, functions, triggers, RLS policies, and seed data.
--- Safe to re-run: uses IF NOT EXISTS and OR REPLACE everywhere.
+-- Execute this ENTIRE file in the Supabase SQL Editor.
+-- Safe to re-run: uses DROP IF EXISTS + CREATE for policies.
 -- ============================================================
 
 
@@ -29,50 +28,37 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   bonus_credits INT DEFAULT 0
 );
 
+-- Add columns if they don't exist (for existing tables)
+DO $$
+BEGIN
+  ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS referral_code TEXT UNIQUE;
+  ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS referred_by TEXT;
+  ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS referral_count INT DEFAULT 0;
+  ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS bonus_credits INT DEFAULT 0;
+EXCEPTION WHEN others THEN NULL;
+END $$;
+
+
 -- ############################################################
 -- 2. PROFILES RLS POLICIES
 -- ############################################################
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
--- Users can read their own profile
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE tablename = 'profiles' AND policyname = 'Users can read own profile'
-  ) THEN
-    CREATE POLICY "Users can read own profile"
-      ON public.profiles FOR SELECT
-      USING (auth.uid() = id);
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Users can read own profile" ON public.profiles;
+CREATE POLICY "Users can read own profile"
+  ON public.profiles FOR SELECT
+  USING (auth.uid() = id);
 
--- Users can update their own profile
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE tablename = 'profiles' AND policyname = 'Users can update own profile'
-  ) THEN
-    CREATE POLICY "Users can update own profile"
-      ON public.profiles FOR UPDATE
-      USING (auth.uid() = id);
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
+CREATE POLICY "Users can update own profile"
+  ON public.profiles FOR UPDATE
+  USING (auth.uid() = id);
 
--- Service role can insert profiles (used by the trigger)
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE tablename = 'profiles' AND policyname = 'Service role can insert profiles'
-  ) THEN
-    CREATE POLICY "Service role can insert profiles"
-      ON public.profiles FOR INSERT
-      WITH CHECK (TRUE);
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Service role can insert profiles" ON public.profiles;
+CREATE POLICY "Service role can insert profiles"
+  ON public.profiles FOR INSERT
+  WITH CHECK (TRUE);
 
 
 -- ############################################################
@@ -118,36 +104,21 @@ CREATE TABLE IF NOT EXISTS public.transactions (
 
 ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE tablename = 'transactions' AND policyname = 'Users can read own transactions'
-  ) THEN
-    CREATE POLICY "Users can read own transactions"
-      ON public.transactions FOR SELECT
-      USING (auth.uid() = user_id);
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Users can read own transactions" ON public.transactions;
+CREATE POLICY "Users can read own transactions"
+  ON public.transactions FOR SELECT
+  USING (auth.uid() = user_id);
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE tablename = 'transactions' AND policyname = 'Users can insert own transactions'
-  ) THEN
-    CREATE POLICY "Users can insert own transactions"
-      ON public.transactions FOR INSERT
-      WITH CHECK (auth.uid() = user_id);
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Users can insert own transactions" ON public.transactions;
+CREATE POLICY "Users can insert own transactions"
+  ON public.transactions FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
 
 
 -- ############################################################
 -- 5. REFERRAL CODE GENERATION FUNCTION + TRIGGER
 -- ############################################################
 
--- Function: generate a unique 6-char alphanumeric referral code
 CREATE OR REPLACE FUNCTION generate_referral_code()
 RETURNS TEXT AS $$
 DECLARE
@@ -163,7 +134,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Trigger function: auto-assign referral code on profile insert
 CREATE OR REPLACE FUNCTION public.assign_referral_code()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -179,7 +149,7 @@ CREATE TRIGGER profiles_assign_referral
   BEFORE INSERT ON public.profiles
   FOR EACH ROW EXECUTE FUNCTION public.assign_referral_code();
 
--- Back-fill referral codes for any existing profiles that lack one
+-- Back-fill referral codes for existing profiles
 UPDATE public.profiles SET referral_code = generate_referral_code() WHERE referral_code IS NULL;
 
 
@@ -202,17 +172,10 @@ CREATE TABLE IF NOT EXISTS public.promo_codes (
 
 ALTER TABLE public.promo_codes ENABLE ROW LEVEL SECURITY;
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE tablename = 'promo_codes' AND policyname = 'Anyone can read active promo codes'
-  ) THEN
-    CREATE POLICY "Anyone can read active promo codes"
-      ON public.promo_codes FOR SELECT
-      USING (is_active = TRUE);
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Anyone can read active promo codes" ON public.promo_codes;
+CREATE POLICY "Anyone can read active promo codes"
+  ON public.promo_codes FOR SELECT
+  USING (is_active = TRUE);
 
 
 -- ############################################################
@@ -229,29 +192,15 @@ CREATE TABLE IF NOT EXISTS public.promo_redemptions (
 
 ALTER TABLE public.promo_redemptions ENABLE ROW LEVEL SECURITY;
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE tablename = 'promo_redemptions' AND policyname = 'Users can view own redemptions'
-  ) THEN
-    CREATE POLICY "Users can view own redemptions"
-      ON public.promo_redemptions FOR SELECT
-      USING (auth.uid() = user_id);
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Users can view own redemptions" ON public.promo_redemptions;
+CREATE POLICY "Users can view own redemptions"
+  ON public.promo_redemptions FOR SELECT
+  USING (auth.uid() = user_id);
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE tablename = 'promo_redemptions' AND policyname = 'Users can insert own redemptions'
-  ) THEN
-    CREATE POLICY "Users can insert own redemptions"
-      ON public.promo_redemptions FOR INSERT
-      WITH CHECK (auth.uid() = user_id);
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Users can insert own redemptions" ON public.promo_redemptions;
+CREATE POLICY "Users can insert own redemptions"
+  ON public.promo_redemptions FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
 
 
 -- ############################################################
@@ -269,41 +218,20 @@ CREATE TABLE IF NOT EXISTS public.user_stats_daily (
 
 ALTER TABLE public.user_stats_daily ENABLE ROW LEVEL SECURITY;
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE tablename = 'user_stats_daily' AND policyname = 'Users can view own stats'
-  ) THEN
-    CREATE POLICY "Users can view own stats"
-      ON public.user_stats_daily FOR SELECT
-      USING (auth.uid() = user_id);
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Users can view own stats" ON public.user_stats_daily;
+CREATE POLICY "Users can view own stats"
+  ON public.user_stats_daily FOR SELECT
+  USING (auth.uid() = user_id);
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE tablename = 'user_stats_daily' AND policyname = 'Users can insert own stats'
-  ) THEN
-    CREATE POLICY "Users can insert own stats"
-      ON public.user_stats_daily FOR INSERT
-      WITH CHECK (auth.uid() = user_id);
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Users can insert own stats" ON public.user_stats_daily;
+CREATE POLICY "Users can insert own stats"
+  ON public.user_stats_daily FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE tablename = 'user_stats_daily' AND policyname = 'Users can update own stats'
-  ) THEN
-    CREATE POLICY "Users can update own stats"
-      ON public.user_stats_daily FOR UPDATE
-      USING (auth.uid() = user_id);
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Users can update own stats" ON public.user_stats_daily;
+CREATE POLICY "Users can update own stats"
+  ON public.user_stats_daily FOR UPDATE
+  USING (auth.uid() = user_id);
 
 
 -- ############################################################
@@ -315,15 +243,12 @@ RETURNS JSON AS $$
 DECLARE
   promo RECORD;
   user_profile RECORD;
-  result JSON;
 BEGIN
-  -- Check the user is authenticated
   SELECT * INTO user_profile FROM public.profiles WHERE id = auth.uid();
   IF user_profile IS NULL THEN
     RETURN json_build_object('success', false, 'error', 'Non connecte');
   END IF;
 
-  -- Look up the promo code
   SELECT * INTO promo FROM public.promo_codes
   WHERE code = UPPER(p_code) AND is_active = TRUE;
 
@@ -331,30 +256,25 @@ BEGIN
     RETURN json_build_object('success', false, 'error', 'Code invalide');
   END IF;
 
-  -- Check expiration
   IF promo.expires_at IS NOT NULL AND promo.expires_at < NOW() THEN
     RETURN json_build_object('success', false, 'error', 'Code expire');
   END IF;
 
-  -- Check max uses
   IF promo.current_uses >= promo.max_uses THEN
     RETURN json_build_object('success', false, 'error', 'Code epuise');
   END IF;
 
-  -- Check if already redeemed by this user
   IF EXISTS(SELECT 1 FROM public.promo_redemptions
             WHERE user_id = auth.uid() AND promo_code = UPPER(p_code)) THEN
     RETURN json_build_object('success', false, 'error', 'Tu as deja utilise ce code');
   END IF;
 
-  -- Apply credit bonus
   IF promo.bonus_credits > 0 THEN
     UPDATE public.profiles
     SET payg_credits = payg_credits + promo.bonus_credits
     WHERE id = auth.uid();
   END IF;
 
-  -- Apply day-pass bonus
   IF promo.bonus_days > 0 THEN
     UPDATE public.profiles
     SET plan = 'pass3j',
@@ -366,7 +286,6 @@ BEGIN
     WHERE id = auth.uid();
   END IF;
 
-  -- Record the redemption
   INSERT INTO public.promo_redemptions (user_id, promo_code)
   VALUES (auth.uid(), UPPER(p_code));
 
@@ -399,29 +318,24 @@ BEGIN
     RETURN json_build_object('success', false, 'error', 'Non connecte');
   END IF;
 
-  -- Cannot refer yourself
   IF user_profile.referral_code = UPPER(p_referral_code) THEN
     RETURN json_build_object('success', false, 'error', 'Tu ne peux pas te parrainer toi-meme');
   END IF;
 
-  -- Already referred?
   IF user_profile.referred_by IS NOT NULL THEN
     RETURN json_build_object('success', false, 'error', 'Tu as deja utilise un code de parrainage');
   END IF;
 
-  -- Find the referrer
   SELECT * INTO referrer FROM public.profiles WHERE referral_code = UPPER(p_referral_code);
   IF referrer IS NULL THEN
     RETURN json_build_object('success', false, 'error', 'Code de parrainage invalide');
   END IF;
 
-  -- Give 5 credits to the referred user
   UPDATE public.profiles
   SET referred_by = referrer.id::TEXT,
       payg_credits = payg_credits + 5
   WHERE id = auth.uid();
 
-  -- Give 5 credits to the referrer + increment count
   UPDATE public.profiles
   SET referral_count = referral_count + 1,
       payg_credits = payg_credits + 5
@@ -450,53 +364,25 @@ CREATE TABLE IF NOT EXISTS public.ratings (
 
 ALTER TABLE public.ratings ENABLE ROW LEVEL SECURITY;
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE tablename = 'ratings' AND policyname = 'Users can read own ratings'
-  ) THEN
-    CREATE POLICY "Users can read own ratings"
-      ON public.ratings FOR SELECT
-      USING (auth.uid() = user_id);
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Users can read own ratings" ON public.ratings;
+CREATE POLICY "Users can read own ratings"
+  ON public.ratings FOR SELECT
+  USING (auth.uid() = user_id);
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE tablename = 'ratings' AND policyname = 'Users can insert own ratings'
-  ) THEN
-    CREATE POLICY "Users can insert own ratings"
-      ON public.ratings FOR INSERT
-      WITH CHECK (auth.uid() = user_id);
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Users can insert own ratings" ON public.ratings;
+CREATE POLICY "Users can insert own ratings"
+  ON public.ratings FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE tablename = 'ratings' AND policyname = 'Users can update own ratings'
-  ) THEN
-    CREATE POLICY "Users can update own ratings"
-      ON public.ratings FOR UPDATE
-      USING (auth.uid() = user_id);
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Users can update own ratings" ON public.ratings;
+CREATE POLICY "Users can update own ratings"
+  ON public.ratings FOR UPDATE
+  USING (auth.uid() = user_id);
 
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE tablename = 'ratings' AND policyname = 'Anyone can read all ratings'
-  ) THEN
-    CREATE POLICY "Anyone can read all ratings"
-      ON public.ratings FOR SELECT
-      USING (TRUE);
-  END IF;
-END $$;
+DROP POLICY IF EXISTS "Anyone can read all ratings" ON public.ratings;
+CREATE POLICY "Anyone can read all ratings"
+  ON public.ratings FOR SELECT
+  USING (TRUE);
 
 
 -- ############################################################
@@ -512,25 +398,14 @@ CREATE TABLE IF NOT EXISTS public.newsletter_subscribers (
 
 ALTER TABLE public.newsletter_subscribers ENABLE ROW LEVEL SECURITY;
 
--- Anyone can subscribe (insert)
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM pg_policies
-    WHERE tablename = 'newsletter_subscribers' AND policyname = 'Anyone can subscribe to newsletter'
-  ) THEN
-    CREATE POLICY "Anyone can subscribe to newsletter"
-      ON public.newsletter_subscribers FOR INSERT
-      WITH CHECK (TRUE);
-  END IF;
-END $$;
-
--- Only service role / admin can read all subscribers (no public SELECT policy)
--- Users do not need to read the subscriber list
+DROP POLICY IF EXISTS "Anyone can subscribe to newsletter" ON public.newsletter_subscribers;
+CREATE POLICY "Anyone can subscribe to newsletter"
+  ON public.newsletter_subscribers FOR INSERT
+  WITH CHECK (TRUE);
 
 
 -- ############################################################
--- 13. SAMPLE PROMO CODES (NO EMOJIS)
+-- 13. SAMPLE PROMO CODES
 -- ############################################################
 
 INSERT INTO public.promo_codes (code, description, bonus_credits, bonus_days, max_uses, expires_at)
@@ -548,29 +423,4 @@ ON CONFLICT (code) DO UPDATE SET
 
 -- ============================================================
 -- SETUP COMPLETE
--- ============================================================
--- Tables created:
---   1. profiles          (user accounts, plans, credits, referrals)
---   2. transactions      (payment / plan purchase history)
---   3. promo_codes       (admin-defined promotional codes)
---   4. promo_redemptions (tracks which user redeemed which code)
---   5. user_stats_daily  (daily image processing stats)
---   6. ratings           (user star ratings and comments)
---   7. newsletter_subscribers (email newsletter opt-ins)
---
--- Functions created:
---   - handle_new_user()       -> auto-creates profile on signup
---   - generate_referral_code()-> generates unique 6-char code
---   - assign_referral_code()  -> trigger to auto-assign on insert
---   - redeem_promo_code()     -> validates and applies promo codes
---   - apply_referral()        -> validates and applies referral bonus
---
--- Triggers created:
---   - on_auth_user_created    -> fires handle_new_user after auth signup
---   - profiles_assign_referral-> fires assign_referral_code before profile insert
---
--- Sample promo codes inserted:
---   - BIENVENUE   : 5 free credits, unlimited uses
---   - LANCEMENT   : 10 free credits, 100 uses, expires in 30 days
---   - PIRABEL2026 : 3-day pass, 50 uses, expires in 60 days
 -- ============================================================
