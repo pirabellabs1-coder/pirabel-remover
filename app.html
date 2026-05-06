@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pirabel">
+<title>App · Pirabel Remover</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23FF6B1A'/%3E%3Ctext x='50' y='68' font-family='Arial Black' font-size='60' font-weight='900' text-anchor='middle' fill='%23000'%3EP%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="app-styles.css">
+</head>
+<body>
+
+<nav class="app-nav">
+  <div class="app-nav-inner">
+    <a href="index.html" class="logo-row">
+      <div class="logo-mark">P</div>
+      <div class="brand-text">
+        <span class="brand">PIRABEL</span>
+        <span class="brand-sub">Logo Remover</span>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <button class="icon-btn theme-toggle-btn" id="themeToggle" title="Mode clair/sombre"></button>
+      <button class="icon-btn lang-toggle-btn" id="langToggle" title="Langue">EN</button>
+      <button class="icon-btn" id="historyBtn" title="Galerie"></button>
+      <button class="icon-btn" id="helpBtn" title="Aide">?</button>
+      <a href="dashboard.html" class="user-chip" id="userChip">
+        <div class="user-avatar" id="navAvatar">U</div>
+        <span class="user-name" id="navName">User</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- Quota banner -->
+  <div class="quota-banner" id="quotaBanner">
+    <div class="quota-info">
+      <div class="quota-label" id="quotaLabel">Plan gratuit</div>
+      <div class="quota-detail" id="quotaDetail">10 / 10 images restantes</div>
+    </div>
+    <button class="quota-upgrade" id="quotaUpgradeBtn">Passer Pro</button>
+  </div>
+
+  <!-- Install banner -->
+  <div class="install-banner" id="installBanner">
+    <span class="install-banner-icon" id="installIcon"></span>
+    <span class="install-banner-text">Installer comme app</span>
+    <button class="install-btn" id="installBtn">Installer</button>
+    <button class="install-close" id="installClose">×</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" data-tab="single">
+      <span class="tab-icon" id="tabIconSingle"></span><span>Une image</span>
+    </button>
+    <button class="tab" data-tab="batch">
+      <span class="tab-icon" id="tabIconBatch"></span><span>Lot</span>
+    </button>
+    <button class="tab" data-tab="gallery">
+      <span class="tab-icon" id="tabIconGallery"></span><span>Galerie</span>
+    </button>
+  </div>
+
+  <!-- SINGLE -->
+  <div class="tab-content active" id="tab-single">
+    <div class="card">
+      <div id="dropzone" class="dropzone">
+        <span class="dropzone-icon" id="dropIcon"></span>
+        <div class="dropzone-title">Choisir une image</div>
+        <div class="dropzone-hint">Touche pour sélectionner<br>PNG · JPG · WEBP — ou colle (Ctrl+V)</div>
+        <input type="file" id="fileInput" accept="image/*" style="display:none;" />
+      </div>
+
+      <div id="editor" class="editor">
+        <div class="settings">
+          <div class="setting-row">
+            <span class="setting-label">Méthode</span>
+            <select id="method" class="dropdown">
+              <option value="patch">Échantillonner autour</option>
+              <option value="blur">Flouter la zone</option>
+              <option value="edge">Étendre les bords</option>
+              <option value="pixelate">Pixelliser</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label">Précision</span>
+            <input type="range" id="presetSize" min="3" max="15" value="6" />
+            <span class="setting-value" id="presetSizeVal">6%</span>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label">Adoucir bords</span>
+            <label class="toggle">
+              <input type="checkbox" id="smoothEdges" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="setting-row">
+            <span class="setting-label">Format</span>
+            <select id="exportFormat" class="dropdown">
+              <option value="png">PNG (sans perte)</option>
+              <option value="jpeg">JPEG (léger)</option>
+              <option value="webp">WEBP</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="toolbar">
+          <button class="btn btn-primary" id="autoBtn"><span id="icAutoP"></span> Auto Pirabel</button>
+          <button class="btn" id="autoGenericBtn"><span id="icTarget"></span> Zone large</button>
+          <button class="btn" id="clearBtn"><span id="icX"></span> Effacer</button>
+          <button class="btn" id="resetBtn"><span id="icRotate"></span> Nouvelle</button>
+        </div>
+
+        <div class="info-box">
+          <span class="info-icon" id="icInfo"></span>
+          <span>Touche-glisse sur l'image pour dessiner la zone, ou utilise les presets.</span>
+        </div>
+
+        <div class="canvas-wrap">
+          <div class="canvas-stack">
+            <canvas id="imgCanvas"></canvas>
+            <canvas id="overlay"></canvas>
+          </div>
+        </div>
+
+        <div class="compare-wrap" id="compareWrap">
+          <img id="compareBefore" alt="Avant">
+          <div class="compare-after"><img id="compareAfter" alt="Après"></div>
+          <div class="compare-handle" id="compareHandle"></div>
+        </div>
+
+        <div class="toolbar">
+          <button class="btn btn-outline-orange" id="applyBtn"><span id="icZap"></span> Appliquer</button>
+          <button class="btn" id="undoBtn"><span id="icUndo"></span> Annuler</button>
+          <button class="btn" id="compareBtn"><span id="icEye"></span> Avant/Après</button>
+          <button class="btn btn-primary" id="downloadBtn"><span id="icDl"></span> Télécharger</button>
+          <button class="btn" id="reuseBtn" title="Réutiliser la dernière image"><span id="icReuse"></span> Réutiliser</button>
+          <button class="btn btn-success" id="quickExportBtn" title="Export PNG + JPG + WEBP"><span id="icQuickE"></span> Export rapide</button>
+        </div>
+
+        <!-- ÉDITION AVANCÉE -->
+        <div class="card" style="margin-top:16px; padding:14px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <strong style="font-size:14px;"><span id="icPalette"></span> Édition avancée</strong>
+            <button class="btn" id="toggleEditBtn" style="width:auto; padding:6px 12px; font-size:12px;">Afficher</button>
+          </div>
+
+          <div id="editPanel" style="display:none;">
+
+            <!-- Sub-tabs édition -->
+            <div class="tabs edit-tabs-scroll" style="margin-bottom:12px; flex-wrap:wrap;">
+              <button class="edit-tab active" data-edittab="filters"><span id="icFilter"></span> Filtres</button>
+              <button class="edit-tab" data-edittab="crop"><span id="icCrop"></span> Recadrer</button>
+              <button class="edit-tab" data-edittab="resize"><span id="icMaximize"></span> Resize</button>
+              <button class="edit-tab" data-edittab="watermark"><span id="icTag"></span> Watermark</button>
+              <button class="edit-tab" data-edittab="stickers"><span id="icSticker"></span> Stickers</button>
+              <button class="edit-tab" data-edittab="annotate"><span id="icPen"></span> Annoter</button>
+              <button class="edit-tab" data-edittab="adjust"><span id="icSliders"></span> Réglages</button>
+              <button class="edit-tab" data-edittab="presets"><span id="icSave2"></span> Presets</button>
+            </div>
+
+            <!-- FILTRES -->
+            <div class="edit-panel active" id="editPanel-filters">
+              <p class="text-secondary text-sm mb-2">Applique un filtre artistique à ton image :</p>
+              <div class="filter-grid" id="filterGrid"></div>
+              <button class="btn btn-primary btn-block mt-2" id="applyFilterBtn" disabled>Appliquer le filtre</button>
+            </div>
+
+            <!-- CROP -->
+            <div class="edit-panel" id="editPanel-crop" style="display:none;">
+              <p class="text-secondary text-sm mb-2">Recadre selon un format :</p>
+              <div class="crop-grid" id="cropGrid"></div>
+              <p class="text-tertiary text-sm mt-2" id="cropInfo"></p>
+              <button class="btn btn-primary btn-block mt-2" id="applyCropBtn" disabled>Appliquer le recadrage</button>
+            </div>
+
+            <!-- RESIZE -->
+            <div class="edit-panel" id="editPanel-resize" style="display:none;">
+              <p class="text-secondary text-sm mb-2">Choisis un format :</p>
+              <div class="resize-grid" id="resizeGrid"></div>
+              <div class="form-group mt-2">
+                <label class="form-label">Ou taille personnalisée</label>
+                <div style="display:flex; gap:8px; align-items:center;">
+                  <input class="form-input" type="number" id="resizeW" placeholder="Largeur" min="50" max="8000" style="flex:1;">
+                  <span class="text-secondary">×</span>
+                  <input class="form-input" type="number" id="resizeH" placeholder="Hauteur" min="50" max="8000" style="flex:1;">
+                  <span class="text-secondary">px</span>
+                </div>
+              </div>
+              <button class="btn btn-primary btn-block mt-2" id="applyResizeBtn">Appliquer le resize</button>
+            </div>
+
+            <!-- WATERMARK -->
+            <div class="edit-panel" id="editPanel-watermark" style="display:none;">
+              <p class="text-secondary text-sm mb-2">Ajoute ton propre watermark :</p>
+              <div class="form-group">
+                <label class="form-label">Texte</label>
+                <input class="form-input" type="text" id="wmText" placeholder="PIRABEL LABS" maxlength="40" value="PIRABEL">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Position</label>
+                <select class="form-input" id="wmPosition">
+                  <option value="bottom-right">Bas droite</option>
+                  <option value="bottom-left">Bas gauche</option>
+                  <option value="top-right">Haut droite</option>
+                  <option value="top-left">Haut gauche</option>
+                  <option value="center">Centre</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Opacité <span id="wmOpacityVal" class="text-orange">70%</span></label>
+                <input type="range" id="wmOpacity" min="20" max="100" value="70" style="width:100%;">
+              </div>
+              <button class="btn btn-primary btn-block mt-2" id="applyWatermarkBtn">Appliquer le watermark</button>
+            </div>
+
+            <!-- STICKERS -->
+            <div class="edit-panel" id="editPanel-stickers" style="display:none;">
+              <p class="text-secondary text-sm mb-2">Clique sur un sticker puis clique sur l'image pour le placer :</p>
+              <div class="sticker-categories" id="stickerCategories"></div>
+              <div class="sticker-grid" id="stickerGrid"></div>
+              <div class="form-group mt-2">
+                <label class="form-label">Taille <span id="stickerSizeVal" class="text-orange">60px</span></label>
+                <input type="range" id="stickerSize" min="20" max="200" value="60" style="width:100%;">
+              </div>
+              <p class="text-tertiary text-sm mt-2" id="stickerInfo">Sélectionne un sticker ci-dessus puis clique sur l'image.</p>
+            </div>
+
+            <!-- ANNOTATIONS -->
+            <div class="edit-panel" id="editPanel-annotate" style="display:none;">
+              <p class="text-secondary text-sm mb-2">Dessine directement sur l'image :</p>
+              <div class="annotate-tools" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+                <button class="btn annotate-tool-btn active" data-tool="pen">Stylo</button>
+                <button class="btn annotate-tool-btn" data-tool="line">Ligne</button>
+                <button class="btn annotate-tool-btn" data-tool="rect">Rect</button>
+                <button class="btn annotate-tool-btn" data-tool="circle">Cercle</button>
+                <button class="btn annotate-tool-btn" data-tool="text">Texte</button>
+              </div>
+              <div style="display:flex; gap:12px; align-items:center; margin-bottom:10px;">
+                <label class="form-label" style="margin:0; min-width:60px;">Couleur</label>
+                <div class="color-palette" id="colorPalette">
+                  <button class="color-swatch active" data-color="#FF0000" style="background:#FF0000;"></button>
+                  <button class="color-swatch" data-color="#0066FF" style="background:#0066FF;"></button>
+                  <button class="color-swatch" data-color="#00CC00" style="background:#00CC00;"></button>
+                  <button class="color-swatch" data-color="#FFD700" style="background:#FFD700;"></button>
+                  <button class="color-swatch" data-color="#FF6B1A" style="background:#FF6B1A;"></button>
+                  <button class="color-swatch" data-color="#FFFFFF" style="background:#FFFFFF;"></button>
+                  <button class="color-swatch" data-color="#000000" style="background:#000000;"></button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Épaisseur <span id="annotSizeVal" class="text-orange">4px</span></label>
+                <input type="range" id="annotSize" min="1" max="20" value="4" style="width:100%;">
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button class="btn btn-block" id="clearAnnotBtn">Effacer annotations</button>
+                <button class="btn btn-primary btn-block" id="applyAnnotBtn">Appliquer</button>
+              </div>
+            </div>
+
+            <!-- RÉGLAGES AVANCÉS -->
+            <div class="edit-panel" id="editPanel-adjust" style="display:none;">
+              <p class="text-secondary text-sm mb-2">Règle manuellement l'apparence de ton image :</p>
+              <div class="form-group">
+                <label class="form-label">Luminosité <span id="adjBrightnessVal" class="text-orange">100%</span></label>
+                <input type="range" id="adjBrightness" min="20" max="200" value="100" style="width:100%;">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Contraste <span id="adjContrastVal" class="text-orange">100%</span></label>
+                <input type="range" id="adjContrast" min="20" max="200" value="100" style="width:100%;">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Saturation <span id="adjSaturationVal" class="text-orange">100%</span></label>
+                <input type="range" id="adjSaturation" min="0" max="200" value="100" style="width:100%;">
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button class="btn btn-block" id="resetAdjustBtn">Réinitialiser</button>
+                <button class="btn btn-primary btn-block" id="applyAdjustBtn">Appliquer</button>
+              </div>
+            </div>
+
+            <!-- PRESETS SAUVEGARDÉS -->
+            <div class="edit-panel" id="editPanel-presets" style="display:none;">
+              <p class="text-secondary text-sm mb-2">Sauvegarde et réutilise tes configurations préférées :</p>
+              <div style="display:flex; gap:8px; margin-bottom:12px;">
+                <input class="form-input" type="text" id="presetNameInput" placeholder="Nom du preset" maxlength="30" style="flex:1;">
+                <button class="btn btn-primary" id="savePresetBtn" style="width:auto; padding:0 16px;">Sauvegarder</button>
+              </div>
+              <div id="presetsList" class="presets-list"></div>
+            </div>
+
+          </div>
+        </div>
+
+        <div id="status" class="status"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BATCH -->
+  <div class="tab-content" id="tab-batch">
+    <div class="card">
+      <div class="info-box">
+        <span class="info-icon" id="icBatchInfo"></span>
+        <span>Mode lot — disponible avec Pass 3 jours ou Mensuel.</span>
+      </div>
+
+      <div class="dropzone" id="batchDropzone">
+        <span class="dropzone-icon" id="batchDropIcon"></span>
+        <div class="dropzone-title">Sélectionner plusieurs images</div>
+        <div class="dropzone-hint">Toutes seront traitées en une fois</div>
+        <input type="file" id="batchInput" accept="image/*" multiple style="display:none;" />
+      </div>
+
+      <div class="batch-list" id="batchList"></div>
+
+      <div class="toolbar full" id="batchActions" style="display:none; margin-top:12px;">
+        <button class="btn btn-primary" id="batchProcessBtn"><span id="icBatchZap"></span> Traiter toutes</button>
+        <button class="btn" id="batchDownloadBtn" disabled><span id="icBatchDl"></span> Tout télécharger</button>
+        <button class="btn btn-danger" id="batchClearBtn">Vider</button>
+      </div>
+
+      <div id="batchStatus" class="status"></div>
+    </div>
+  </div>
+
+  <!-- GALLERY -->
+  <div class="tab-content" id="tab-gallery">
+    <div class="card">
+      <div class="info-box">
+        <span class="info-icon" id="icGalleryInfo"></span>
+        <span>Tes 12 dernières images traitées (stockage local).</span>
+      </div>
+      <div class="history-grid" id="galleryGrid">
+        <div class="history-empty">Aucune image traitée</div>
+      </div>
+      <div class="toolbar full" style="margin-top:12px;">
+        <button class="btn btn-danger" id="galleryClearBtn"><span id="icTrash"></span> Vider la galerie</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <a href="dashboard.html">Mon espace</a> · <a href="index.html">Accueil</a> · <a href="https://pirabellabs.com" target="_blank">Pirabel Labs</a>
+    <br>
+    <a href="#" id="openRatingBtn" style="margin-top:6px; display:inline-block;">Donner mon avis</a> ·
+    <a href="#" id="openNewsletterBtn">Newsletter</a>
+  </footer>
+</div>
+
+<!-- Quota exceeded modal -->
+<div class="modal" id="quotaModal">
+  <div class="modal-content">
+    <div class="modal-title">
+      <span>Quota atteint</span>
+      <button class="modal-close" data-close="quotaModal">×</button>
+    </div>
+    <div class="modal-section">
+      <p style="margin-bottom:16px;">Tu as utilisé toutes tes images. Choisis un plan pour continuer :</p>
+      <div id="upgradeOptions"></div>
+      <p style="margin-top:16px; font-size:12px; color:var(--text-tertiary); text-align:center;">
+        Wave · Orange Money · MTN · Moov · Carte bancaire<br>
+        Activation automatique après paiement
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Help modal -->
+<div class="modal" id="helpModal">
+  <div class="modal-content">
+    <div class="modal-title">
+      <span>Comment utiliser</span>
+      <button class="modal-close" data-close="helpModal">×</button>
+    </div>
+    <div class="modal-section">
+      <h3>Une image</h3>
+      <ul style="padding-left:20px;">
+        <li>Sélectionne ton image Gemini</li>
+        <li>Clique <strong>Auto Pirabel</strong> pour cibler le logo</li>
+        <li>Ajuste avec ton doigt si besoin</li>
+        <li><strong>Appliquer</strong> puis <strong>Télécharger</strong></li>
+      </ul>
+    </div>
+    <div class="modal-section">
+      <h3>Lot (PRO)</h3>
+      <ul style="padding-left:20px;">
+        <li>Sélectionne plusieurs images</li>
+        <li>Le preset s'applique à toutes</li>
+        <li>Télécharge tout d'un coup</li>
+      </ul>
+    </div>
+    <div class="modal-section">
+      <h3>Raccourcis</h3>
+      <ul style="padding-left:20px;">
+        <li><strong>Entrée</strong> — appliquer</li>
+        <li><strong>Ctrl+Z</strong> — annuler</li>
+        <li><strong>Échap</strong> — effacer</li>
+        <li><strong>Ctrl+S</strong> — télécharger</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Payment success modal -->
+<div class="modal" id="paySuccessModal">
+  <div class="modal-content text-center">
+    <div style="margin-bottom:16px;" id="icPaySuccess"></div>
+    <h2 class="gradient-text" style="font-size:24px; margin-bottom:12px;">Paiement réussi !</h2>
+    <p style="color:var(--text-secondary); margin-bottom:20px;" id="paySuccessText">Plan activé.</p>
+    <button class="btn btn-primary btn-block btn-large" data-close="paySuccessModal">Continuer</button>
+  </div>
+</div>
+
+<!-- Rating modal -->
+<div class="modal" id="ratingModal">
+  <div class="modal-content text-center">
+    <div class="modal-title">
+      <span>Ton avis compte !</span>
+      <button class="modal-close" data-close="ratingModal">×</button>
+    </div>
+    <p style="color:var(--text-secondary); margin-bottom:16px;">Comment trouves-tu Pirabel Remover ?</p>
+    <div class="rating-stars" id="ratingStars" style="font-size:36px; margin-bottom:16px; cursor:pointer;">
+      <span data-star="1">&#9734;</span>
+      <span data-star="2">&#9734;</span>
+      <span data-star="3">&#9734;</span>
+      <span data-star="4">&#9734;</span>
+      <span data-star="5">&#9734;</span>
+    </div>
+    <div class="form-group">
+      <textarea class="form-input" id="ratingComment" placeholder="Un commentaire ? (optionnel)" rows="3" style="resize:vertical;"></textarea>
+    </div>
+    <button class="btn btn-primary btn-block" id="submitRatingBtn" disabled>Envoyer mon avis</button>
+    <div class="form-success mt-2" id="ratingSuccess"></div>
+  </div>
+</div>
+
+<!-- Newsletter modal -->
+<div class="modal" id="newsletterModal">
+  <div class="modal-content text-center">
+    <div class="modal-title">
+      <span>Reste informé</span>
+      <button class="modal-close" data-close="newsletterModal">×</button>
+    </div>
+    <p style="color:var(--text-secondary); margin-bottom:16px;">Reçois les nouveautés, promos et astuces par email.</p>
+    <div style="display:flex; gap:8px;">
+      <input class="form-input" type="email" id="newsletterEmail" placeholder="Ton adresse email" style="flex:1;">
+      <button class="btn btn-primary" id="newsletterSubBtn" style="width:auto; padding:0 20px;">S'inscrire</button>
+    </div>
+    <div class="form-success mt-2" id="newsletterSuccess"></div>
+    <div class="form-error mt-2" id="newsletterError"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="icons.js"></script>
+<script src="i18n.js"></script>
+<script src="theme.js"></script>
+<script src="auth.js"></script>
+<script src="payment.js"></script>
+<script src="image-edit.js"></script>
+<script src="app-logic.js"></script>
+<script src="app-edit.js"></script>
+<script>
+// Inject SVG icons into placeholders
+(function() {
+  const I = window.PirabelIcons;
+  if (!I) return;
+  const s = I.svg;
+  // Nav
+  document.getElementById('themeToggle').innerHTML = s('sun', 16);
+  document.getElementById('historyBtn').innerHTML = s('folder', 16);
+  // Tabs
+  document.getElementById('tabIconSingle').innerHTML = s('target', 14);
+  document.getElementById('tabIconBatch').innerHTML = s('package', 14);
+  document.getElementById('tabIconGallery').innerHTML = s('image', 14);
+  // Dropzone
+  document.getElementById('dropIcon').innerHTML = s('upload', 40);
+  // Toolbar
+  document.getElementById('icAutoP').innerHTML = s('sparkles', 14);
+  document.getElementById('icTarget').innerHTML = s('target', 14);
+  document.getElementById('icX').innerHTML = s('x', 14);
+  document.getElementById('icRotate').innerHTML = s('rotate-ccw', 14);
+  document.getElementById('icZap').innerHTML = s('zap', 14);
+  document.getElementById('icUndo').innerHTML = s('rotate-ccw', 14);
+  document.getElementById('icEye').innerHTML = s('eye', 14);
+  document.getElementById('icDl').innerHTML = s('download', 14);
+  document.getElementById('icReuse').innerHTML = s('refresh-cw', 14);
+  document.getElementById('icQuickE').innerHTML = s('zap', 14);
+  // Edit
+  document.getElementById('icPalette').innerHTML = s('palette', 16);
+  document.getElementById('icFilter').innerHTML = s('filter', 12);
+  document.getElementById('icCrop').innerHTML = s('scissors', 12);
+  document.getElementById('icMaximize').innerHTML = s('maximize', 12);
+  document.getElementById('icTag').innerHTML = s('tag', 12);
+  document.getElementById('icSticker').innerHTML = s('sticker', 12);
+  document.getElementById('icPen').innerHTML = s('pen-tool', 12);
+  document.getElementById('icSliders').innerHTML = s('sliders', 12);
+  document.getElementById('icSave2').innerHTML = s('save', 12);
+  // Info
+  document.getElementById('icInfo').innerHTML = s('info', 16);
+  // Batch
+  document.getElementById('icBatchInfo').innerHTML = s('package', 16);
+  document.getElementById('batchDropIcon').innerHTML = s('layers', 40);
+  document.getElementById('icBatchZap').innerHTML = s('zap', 14);
+  document.getElementById('icBatchDl').innerHTML = s('download', 14);
+  // Gallery
+  document.getElementById('icGalleryInfo').innerHTML = s('image', 16);
+  document.getElementById('icTrash').innerHTML = s('trash', 14);
+  // Install
+  document.getElementById('installIcon').innerHTML = s('smartphone', 18);
+  // Payment success
+  document.getElementById('icPaySuccess').innerHTML = s('check-circle', 60);
+})();
+</script>
+</body>
+</html>

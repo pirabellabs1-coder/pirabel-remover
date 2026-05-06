@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="description" content="Supprime le watermark Gemini de tes images en 1 clic. À partir de 50 FCFA. Pirabel Labs.">
+<meta property="og:title" content="Pirabel Remover — Supprime le logo Gemini">
+<meta property="og:description" content="Outil rapide. Paiement Mobile Money. À partir de 50 FCFA.">
+<title>Pirabel Remover — Supprime le logo Gemini</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23FF6B1A'/%3E%3Ctext x='50' y='68' font-family='Arial Black' font-size='60' font-weight='900' text-anchor='middle' fill='%23000'%3EP%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="styles.css">
+<style>
+  body::after { content:''; position:fixed; bottom:-30%; left:-20%; width:60%; height:60%; background:radial-gradient(circle, rgba(255,107,26,0.06) 0%, transparent 60%); pointer-events:none; z-index:0; }
+  .landing { max-width: 1100px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
+  .hero { padding: 60px 20px 40px; text-align: center; }
+  .hero-badge { display:inline-flex; align-items:center; gap:8px; background:rgba(255,107,26,0.1); border:1px solid rgba(255,107,26,0.3); color:var(--orange); font-size:12px; font-weight:600; padding:6px 14px; border-radius:999px; margin-bottom:24px; letter-spacing:0.5px; }
+  .hero-badge::before { content:'●'; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+  h1 { font-size:clamp(32px,7vw,60px); font-weight:800; line-height:1.1; margin-bottom:24px; letter-spacing:-1.5px; }
+  .hero-sub { font-size:clamp(15px,2.5vw,19px); color:var(--text-secondary); max-width:640px; margin:0 auto 32px; }
+  .hero-cta-group { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-bottom:40px; }
+  .btn-hero { padding:14px 28px; border-radius:12px; font-weight:700; font-size:15px; text-decoration:none; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; gap:8px; border:none; font-family:inherit; }
+  .btn-hero-primary { background:var(--orange); color:#000; box-shadow:0 8px 32px var(--orange-glow); }
+  .btn-hero-primary:hover { background:var(--orange-soft); transform:translateY(-2px); }
+  .btn-hero-secondary { background:var(--bg-secondary); color:var(--text-primary); border:1px solid var(--border-hover); }
+  .btn-hero-secondary:hover { background:var(--bg-tertiary); border-color:var(--orange); }
+  .hero-trust { display:flex; gap:24px; justify-content:center; flex-wrap:wrap; color:var(--text-tertiary); font-size:12px; }
+
+  .demo-preview { margin:60px auto 0; max-width:800px; background:var(--bg-secondary); border:1px solid var(--border); border-radius:24px; padding:16px; position:relative; }
+  .demo-frame { background:var(--bg-tertiary); border-radius:16px; aspect-ratio:16/10; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+  .demo-svg { width:100%; height:100%; }
+
+  section { padding:80px 20px; position:relative; }
+  .section-tag { text-align:center; color:var(--orange); font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; }
+  h2 { font-size:clamp(28px,5vw,44px); font-weight:800; text-align:center; margin-bottom:16px; letter-spacing:-1px; line-height:1.2; }
+  .section-sub { text-align:center; color:var(--text-secondary); font-size:16px; max-width:600px; margin:0 auto 56px; }
+
+  .features { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:16px; }
+  .feature-card { background:var(--bg-secondary); border:1px solid var(--border); border-radius:16px; padding:24px; transition:all 0.2s; }
+  .feature-card:hover { border-color:var(--orange); transform:translateY(-4px); }
+  .feature-icon { width:44px; height:44px; background:rgba(255,107,26,0.12); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:22px; margin-bottom:16px; }
+  .feature-card h3 { font-size:17px; font-weight:700; margin-bottom:8px; }
+  .feature-card p { color:var(--text-secondary); font-size:14px; line-height:1.6; }
+
+  .steps { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:20px; counter-reset:step; }
+  .step { background:var(--bg-secondary); border:1px solid var(--border); border-radius:16px; padding:28px 24px; position:relative; counter-increment:step; }
+  .step::before { content:counter(step, decimal-leading-zero); position:absolute; top:-12px; left:24px; background:var(--orange); color:#000; padding:4px 12px; border-radius:999px; font-size:12px; font-weight:800; letter-spacing:1px; }
+  .step h3 { font-size:17px; font-weight:700; margin:8px 0 8px; }
+  .step p { color:var(--text-secondary); font-size:14px; }
+
+  .pricing-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:16px; max-width:1000px; margin:0 auto; }
+  .plan { background:var(--bg-secondary); border:1px solid var(--border); border-radius:20px; padding:24px 20px; position:relative; display:flex; flex-direction:column; }
+  .plan.featured { border:2px solid var(--orange); box-shadow:0 8px 40px var(--orange-glow); }
+  .plan-badge { position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:var(--orange); color:#000; padding:4px 14px; border-radius:999px; font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; }
+  .plan-icon { font-size:28px; margin-bottom:12px; }
+  .plan-name { font-size:18px; font-weight:800; margin-bottom:4px; }
+  .plan-desc { color:var(--text-secondary); font-size:12px; margin-bottom:18px; }
+  .plan-price { margin-bottom:18px; }
+  .price-amount { font-size:32px; font-weight:800; letter-spacing:-1px; }
+  .price-currency { font-size:13px; color:var(--text-secondary); margin-left:4px; }
+  .price-period { color:var(--text-secondary); font-size:12px; margin-top:4px; }
+  .plan-features { list-style:none; margin-bottom:20px; flex:1; }
+  .plan-features li { padding:5px 0; font-size:12px; color:var(--text-secondary); display:flex; align-items:flex-start; gap:8px; }
+  .plan-features li::before { content:'✓'; color:var(--orange); font-weight:700; flex-shrink:0; }
+  .plan-cta { display:block; text-align:center; padding:12px; border-radius:10px; font-weight:700; font-size:13px; text-decoration:none; cursor:pointer; width:100%; border:none; font-family:inherit; }
+  .plan-cta.primary { background:var(--orange); color:#000; }
+  .plan-cta.outline { background:transparent; color:var(--text-primary); border:1px solid var(--border-hover); }
+
+  .faq-list { max-width:720px; margin:0 auto; }
+  .faq-item { background:var(--bg-secondary); border:1px solid var(--border); border-radius:12px; margin-bottom:12px; overflow:hidden; transition:all 0.2s; }
+  .faq-item[open] { border-color:var(--orange); }
+  .faq-question { padding:18px 20px; font-weight:600; font-size:15px; cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; user-select:none; }
+  .faq-question::-webkit-details-marker { display:none; }
+  .faq-question::after { content:'+'; font-size:24px; color:var(--orange); transition:transform 0.2s; }
+  .faq-item[open] .faq-question::after { transform:rotate(45deg); }
+  .faq-answer { padding:0 20px 18px; color:var(--text-secondary); font-size:14px; line-height:1.7; }
+
+  .cta-final { background:linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%); border:1px solid var(--orange); border-radius:24px; padding:48px 28px; text-align:center; margin:0 auto; max-width:800px; position:relative; overflow:hidden; }
+  .cta-final::before { content:''; position:absolute; top:-50%; right:-20%; width:60%; height:200%; background:radial-gradient(circle, var(--orange-glow) 0%, transparent 60%); }
+  .cta-final > * { position:relative; z-index:1; }
+
+  footer { border-top:1px solid var(--border); padding:32px 20px 24px; margin-top:60px; }
+  .footer-inner { max-width:1100px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; }
+  .footer-text { color:var(--text-tertiary); font-size:13px; }
+  .footer-text a { color:var(--orange); text-decoration:none; }
+  .footer-links { display:flex; gap:20px; }
+  .footer-links a { color:var(--text-secondary); text-decoration:none; font-size:13px; }
+  .footer-links a:hover { color:var(--orange); }
+
+  @media (max-width: 600px) {
+    .hero { padding: 40px 16px 30px; }
+    section { padding: 56px 16px; }
+    .cta-final { padding: 36px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="app-nav">
+  <div class="app-nav-inner">
+    <a href="index.html" class="logo-row">
+      <div class="logo-mark">P</div>
+      <div class="brand-text">
+        <span class="brand">PIRABEL</span>
+        <span class="brand-sub">Logo Remover</span>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <button class="icon-btn theme-toggle-btn" id="themeToggle" title="Mode clair/sombre">☀️</button>
+      <button class="icon-btn lang-toggle-btn" id="langToggle" title="Langue">🇬🇧 EN</button>
+      <a href="auth.html" class="icon-btn" title="Connexion">👤</a>
+      <a href="app.html" class="nav-cta">Lancer l'app</a>
+    </div>
+  </div>
+</nav>
+
+<div class="landing">
+
+<section class="hero">
+  <div class="hero-badge">Nouveau · Paiement Mobile Money</div>
+  <h1>Supprime le logo Gemini<br><span class="gradient-text">de tes images en 1 clic</span></h1>
+  <p class="hero-sub">L'outil le plus rapide pour effacer le watermark des images générées par IA. Paiement Wave, Orange Money, MTN, carte bancaire.</p>
+
+  <div class="hero-cta-group">
+    <a href="auth.html?mode=register" class="btn-hero btn-hero-primary">🚀 Créer mon compte</a>
+    <a href="app.html" class="btn-hero btn-hero-secondary">Essayer maintenant</a>
+  </div>
+
+  <div class="hero-trust">
+    <span>⚡ 10 images gratuites/mois</span>
+    <span>🔒 Sécurisé</span>
+    <span>📱 Marche sur mobile</span>
+  </div>
+
+  <div class="demo-preview">
+    <div class="demo-frame">
+      <svg class="demo-svg" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#1a1a1a"/>
+            <stop offset="100%" style="stop-color:#0a0a0a"/>
+          </linearGradient>
+          <linearGradient id="og" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#FF6B1A"/>
+            <stop offset="100%" style="stop-color:#D85A30"/>
+          </linearGradient>
+        </defs>
+        <rect width="800" height="500" fill="url(#bg)" rx="12"/>
+        <text x="60" y="180" font-family="Arial Black" font-size="58" font-weight="900" fill="#fff">POURQUOI</text>
+        <text x="60" y="240" font-family="Arial Black" font-size="58" font-weight="900" fill="url(#og)">L'ABANDON ?</text>
+        <rect x="500" y="200" width="240" height="160" fill="#1a1a1a" stroke="#333" stroke-width="2" rx="8"/>
+        <rect x="510" y="210" width="220" height="120" fill="#0a0a0a" rx="4"/>
+        <rect x="600" y="240" width="120" height="60" fill="url(#og)" opacity="0.8"/>
+        <g>
+          <polygon points="720,440 740,460 720,480 700,460" fill="#fff" opacity="0.9"/>
+        </g>
+        <rect x="690" y="430" width="60" height="60" fill="none" stroke="#FF6B1A" stroke-width="3" stroke-dasharray="8,4" rx="4">
+          <animate attributeName="stroke-dashoffset" from="0" to="24" dur="1s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0;1;1;1;0" keyTimes="0;0.1;0.3;0.7;1" dur="3s" repeatCount="indefinite"/>
+        </rect>
+        <rect x="690" y="430" width="60" height="60" fill="#0a0a0a" opacity="0">
+          <animate attributeName="opacity" values="0;0;0;1;1" keyTimes="0;0.7;0.75;0.8;1" dur="3s" repeatCount="indefinite"/>
+        </rect>
+        <g>
+          <rect x="40" y="40" width="160" height="32" fill="#FF6B1A" rx="16"/>
+          <text x="120" y="61" font-family="Arial" font-size="13" fill="#000" text-anchor="middle" font-weight="700">LOGO RETIRÉ ✓</text>
+          <animate attributeName="opacity" values="0;0;0;1;1" keyTimes="0;0.7;0.75;0.85;1" dur="3s" repeatCount="indefinite"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="section-tag">Fonctionnalités</div>
+  <h2>Conçu pour aller <span class="gradient-text">droit au but</span></h2>
+  <p class="section-sub">Pas de blabla. Tu charges, tu cliques, tu télécharges.</p>
+  <div class="features">
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <h3>Suppression instantanée</h3>
+      <p>Détection automatique de la zone du logo Gemini. 1 clic et c'est fini.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💳</div>
+      <h3>Paiement automatique</h3>
+      <p>Wave, Orange Money, MTN, Moov, carte bancaire. Activation instantanée.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📦</div>
+      <h3>Traitement par lot</h3>
+      <p>Sélectionne 50 images d'un coup. Toutes nettoyées en quelques secondes.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎨</div>
+      <h3>4 méthodes de retouche</h3>
+      <p>Échantillonner, flouter, étendre, pixelliser. La bonne pour chaque fond.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📱</div>
+      <h3>Installable comme app</h3>
+      <p>Ajoute-la à ton écran d'accueil. Marche hors-ligne après installation.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">👤</div>
+      <h3>Espace personnel</h3>
+      <p>Crée ton compte, suis tes paiements, gère ton plan en autonomie.</p>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--bg-secondary); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+  <div class="section-tag">Comment ça marche</div>
+  <h2>3 étapes, <span class="gradient-text">30 secondes chrono</span></h2>
+  <p class="section-sub">De ton image avec watermark à ton image propre.</p>
+  <div class="steps">
+    <div class="step">
+      <h3>Charge ton image</h3>
+      <p>Glisse-dépose ou sélectionne une image générée par Gemini.</p>
+    </div>
+    <div class="step">
+      <h3>Clique "Auto"</h3>
+      <p>La zone du logo est détectée automatiquement. Ajuste avec ton doigt si besoin.</p>
+    </div>
+    <div class="step">
+      <h3>Télécharge</h3>
+      <p>Image propre prête à partager. Format PNG, JPG ou WEBP au choix.</p>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="section-tag">Tarifs</div>
+  <h2>Choisis ton <span class="gradient-text">plan</span></h2>
+  <p class="section-sub">Commence gratuitement. Paie selon ton usage.</p>
+
+  <div class="pricing-grid">
+    <div class="plan">
+      <div class="plan-icon">🆓</div>
+      <div class="plan-name">Gratuit</div>
+      <div class="plan-desc">Pour découvrir</div>
+      <div class="plan-price">
+        <span class="price-amount">0</span>
+        <span class="price-currency">FCFA</span>
+        <div class="price-period">Pour toujours</div>
+      </div>
+      <ul class="plan-features">
+        <li>10 images par mois</li>
+        <li>Toutes les méthodes</li>
+        <li>Espace personnel</li>
+      </ul>
+      <a href="auth.html?mode=register" class="plan-cta outline">Créer un compte</a>
+    </div>
+
+    <div class="plan">
+      <div class="plan-icon">💵</div>
+      <div class="plan-name">À l'image</div>
+      <div class="plan-desc">Usage occasionnel</div>
+      <div class="plan-price">
+        <span class="price-amount">50</span>
+        <span class="price-currency">FCFA</span>
+        <div class="price-period">Par image</div>
+      </div>
+      <ul class="plan-features">
+        <li>1 crédit par paiement</li>
+        <li>Crédits sans expiration</li>
+        <li>Cumul possible</li>
+      </ul>
+      <a href="dashboard.html?plan=payg" class="plan-cta outline">Acheter</a>
+    </div>
+
+    <div class="plan featured">
+      <div class="plan-badge">Populaire</div>
+      <div class="plan-icon">🎟️</div>
+      <div class="plan-name">Pass 3 jours</div>
+      <div class="plan-desc">Besoins ponctuels</div>
+      <div class="plan-price">
+        <span class="price-amount">200</span>
+        <span class="price-currency">FCFA</span>
+        <div class="price-period">Pour 72 heures</div>
+      </div>
+      <ul class="plan-features">
+        <li><strong>Images illimitées</strong></li>
+        <li>Traitement par lot</li>
+        <li>Activation instantanée</li>
+      </ul>
+      <a href="dashboard.html?plan=pass3j" class="plan-cta primary">Acheter 200 FCFA</a>
+    </div>
+
+    <div class="plan">
+      <div class="plan-icon">💎</div>
+      <div class="plan-name">Mensuel</div>
+      <div class="plan-desc">Pros & créateurs</div>
+      <div class="plan-price">
+        <span class="price-amount">5 000</span>
+        <span class="price-currency">FCFA</span>
+        <div class="price-period">Par mois (30 jours)</div>
+      </div>
+      <ul class="plan-features">
+        <li><strong>Images illimitées</strong></li>
+        <li>Traitement par lot</li>
+        <li>Support prioritaire</li>
+      </ul>
+      <a href="dashboard.html?plan=monthly" class="plan-cta outline">Acheter</a>
+    </div>
+  </div>
+
+  <p style="text-align:center; margin-top:32px; color:var(--text-tertiary); font-size:13px;">
+    💳 <strong style="color:var(--text-secondary);">Wave · Orange Money · MTN · Moov · Carte bancaire</strong>
+  </p>
+</section>
+
+<section id="faq" style="background:var(--bg-secondary); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+  <div class="section-tag">FAQ</div>
+  <h2>Questions <span class="gradient-text">fréquentes</span></h2>
+  <p class="section-sub">Tout ce que tu dois savoir.</p>
+
+  <div class="faq-list">
+    <details class="faq-item">
+      <summary class="faq-question">Le paiement est-il vraiment automatique ?</summary>
+      <div class="faq-answer">Oui, à 100%. Tu paies via Kkiapay (Wave, Orange Money, MTN, Moov, ou carte bancaire), et ton plan est activé automatiquement dès la confirmation. Pas besoin de nous contacter.</div>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-question">Comment fonctionne le plan "À l'image" (50 FCFA) ?</summary>
+      <div class="faq-answer">Tu paies 50 FCFA et tu obtiens 1 crédit pour traiter 1 image. Tu peux acheter autant de crédits que tu veux. Ils n'expirent jamais et se cumulent avec ton quota gratuit.</div>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-question">Mes images sont-elles privées ?</summary>
+      <div class="faq-answer">Oui. Tout le traitement se fait dans ton navigateur. Aucune image n'est envoyée sur internet. On n'a même pas de serveur qui reçoit tes fichiers.</div>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-question">Quels moyens de paiement ?</summary>
+      <div class="faq-answer">Via Kkiapay : Wave, Orange Money, MTN Mobile Money, Moov Money, Moov Africa, et carte bancaire (Visa/Mastercard).</div>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-question">Le pass 3 jours commence quand ?</summary>
+      <div class="faq-answer">Au moment du paiement réussi. Tu auras 72 heures d'accès illimité dès que Kkiapay confirme la transaction.</div>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-question">Ça marche sur iPhone et Android ?</summary>
+      <div class="faq-answer">Oui, sur les deux. Ouvre dans Chrome (Android) ou Safari (iPhone), puis "Ajouter à l'écran d'accueil" pour l'installer comme une app native.</div>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-question">Puis-je obtenir un remboursement ?</summary>
+      <div class="faq-answer">Vu le format digital instantané, on n'offre pas de remboursement après activation. Si tu rencontres un problème technique, contacte-nous.</div>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-question">Qui est derrière ?</summary>
+      <div class="faq-answer">Pirabel Labs, agence de marketing digital et automatisation IA basée à Cotonou, Bénin. Plus d'infos sur <a href="https://pirabellabs.com" target="_blank" style="color:var(--orange);">pirabellabs.com</a>.</div>
+    </details>
+  </div>
+</section>
+
+<!-- Newsletter section -->
+<section id="newsletter">
+  <div style="max-width:600px; margin:0 auto; text-align:center;">
+    <div class="section-tag">Newsletter</div>
+    <h2>📬 Reste <span class="gradient-text">informé</span></h2>
+    <p class="section-sub">Reçois les nouveautés, promos exclusives et astuces pour tes images.</p>
+    <div style="display:flex; gap:10px; max-width:440px; margin:0 auto;">
+      <input class="form-input" type="email" id="indexNewsletterEmail" placeholder="Ton adresse email" style="flex:1;">
+      <button class="btn-hero btn-hero-primary" id="indexNewsletterBtn" style="padding:12px 24px; white-space:nowrap;">S'inscrire</button>
+    </div>
+    <p class="form-success mt-2" id="indexNewsletterSuccess" style="display:none;"></p>
+    <p style="color:var(--text-tertiary); font-size:11px; margin-top:12px;">Pas de spam. Désinscription en 1 clic.</p>
+  </div>
+</section>
+
+<!-- New v5 features showcase -->
+<section style="background:var(--bg-secondary); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+  <div class="section-tag">Nouveau</div>
+  <h2>10 fonctionnalités <span class="gradient-text">bonus</span></h2>
+  <p class="section-sub">Encore plus d'outils créatifs pour tes images.</p>
+  <div class="features">
+    <div class="feature-card"><div class="feature-icon">🖼️</div><h3>Stickers & emojis</h3><p>Ajoute des emojis fun directement sur tes images.</p></div>
+    <div class="feature-card"><div class="feature-icon">✏️</div><h3>Annotations</h3><p>Dessine, entoure, écris sur tes images avec des marqueurs colorés.</p></div>
+    <div class="feature-card"><div class="feature-icon">🌈</div><h3>Réglages avancés</h3><p>Luminosité, contraste, saturation — tout réglable avec des sliders.</p></div>
+    <div class="feature-card"><div class="feature-icon">📋</div><h3>Presets sauvegardés</h3><p>Sauvegarde ta config favorite et réutilise-la en 1 clic.</p></div>
+    <div class="feature-card"><div class="feature-icon">🔄</div><h3>Réutiliser image</h3><p>Bouton "Refaire" pour retravailler la même image.</p></div>
+    <div class="feature-card"><div class="feature-icon">⚡</div><h3>Export rapide</h3><p>1 clic = PNG + JPG + WEBP téléchargés d'un coup.</p></div>
+    <div class="feature-card"><div class="feature-icon">📬</div><h3>Newsletter</h3><p>Reçois les actus, promos et nouvelles fonctionnalités.</p></div>
+    <div class="feature-card"><div class="feature-icon">⭐</div><h3>Système d'avis</h3><p>Note l'app de 1 à 5 étoiles et aide-nous à l'améliorer.</p></div>
+    <div class="feature-card"><div class="feature-icon">🌙</div><h3>Mode clair/sombre</h3><p>Choisis le thème qui te convient le mieux.</p></div>
+    <div class="feature-card"><div class="feature-icon">🌍</div><h3>Multi-langues</h3><p>Français par défaut + anglais disponible.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="cta-final">
+    <h2>Prêt à supprimer ce <span class="gradient-text">logo</span> ?</h2>
+    <p style="color:var(--text-secondary); margin-bottom:28px;">Crée ton compte et reçois 10 images gratuites par mois.</p>
+    <a href="auth.html?mode=register" class="btn-hero btn-hero-primary">🚀 Créer mon compte gratuit</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-text">© 2026 <a href="https://pirabellabs.com" target="_blank">Pirabel Labs</a> · Cotonou, Bénin</div>
+    <div class="footer-links">
+      <a href="app.html">App</a>
+      <a href="#pricing">Tarifs</a>
+      <a href="#faq">FAQ</a>
+      <a href="auth.html">Connexion</a>
+    </div>
+  </div>
+</footer>
+
+</div>
+
+<script src="config.js"></script>
+<script src="i18n.js"></script>
+<script src="theme.js"></script>
+<script>
+(function() {
+  // Theme toggle
+  const themeToggle = document.getElementById('themeToggle');
+  if (themeToggle && window.PirabelTheme) {
+    themeToggle.addEventListener('click', () => window.PirabelTheme.toggleTheme());
+  }
+  // Lang toggle
+  const langToggle = document.getElementById('langToggle');
+  if (langToggle && window.PirabelI18n) {
+    langToggle.addEventListener('click', () => window.PirabelI18n.toggleLang());
+  }
+  // Newsletter
+  const btn = document.getElementById('indexNewsletterBtn');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      const email = document.getElementById('indexNewsletterEmail').value.trim();
+      const suc = document.getElementById('indexNewsletterSuccess');
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        suc.textContent = 'Email invalide';
+        suc.style.display = 'block';
+        suc.style.color = 'var(--error)';
+        return;
+      }
+      const subs = JSON.parse(localStorage.getItem('pirabel_newsletter') || '[]');
+      if (!subs.includes(email)) { subs.push(email); localStorage.setItem('pirabel_newsletter', JSON.stringify(subs)); }
+      suc.textContent = '✓ Inscrit ! Tu recevras nos prochaines actus.';
+      suc.style.display = 'block';
+      suc.style.color = 'var(--success)';
+      document.getElementById('indexNewsletterEmail').value = '';
+    });
+  }
+})();
+</script>
+</body>
+</html>

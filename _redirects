@@ -1,0 +1,17 @@
+# Bloquer toutes les tentatives d'accès aux URLs d'admin classiques
+# Redirection vers la page d'accueil avec status 404
+/admin /index.html 404
+/admin.html /index.html 404
+/admin/* /index.html 404
+/administrator /index.html 404
+/administrator.html /index.html 404
+/wp-admin /index.html 404
+/wp-admin/* /index.html 404
+/dashboard-admin /index.html 404
+/manage /index.html 404
+/manager /index.html 404
+
+# SPA-style routing pour les liens propres
+/auth /auth.html 200
+/app /app.html 200
+/dashboard /dashboard.html 200

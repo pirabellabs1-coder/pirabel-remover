@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0a0a">
+<title>Connexion · Pirabel Remover</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23FF6B1A'/%3E%3Ctext x='50' y='68' font-family='Arial Black' font-size='60' font-weight='900' text-anchor='middle' fill='%23000'%3EP%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .auth-wrap { max-width: 420px; margin: 0 auto; padding: 40px 20px 20px; }
+  .auth-logo { text-align: center; margin-bottom: 24px; }
+  .auth-logo .logo-mark { width: 60px; height: 60px; font-size: 32px; margin: 0 auto; }
+  .auth-title { text-align: center; font-size: 26px; font-weight: 800; margin-top: 16px; margin-bottom: 8px; }
+  .auth-subtitle { text-align: center; color: var(--text-secondary); font-size: 14px; margin-bottom: 28px; }
+  .auth-tabs { display: flex; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; padding: 4px; margin-bottom: 20px; gap: 4px; }
+  .auth-tab { flex: 1; background: transparent; border: none; color: var(--text-secondary); padding: 10px; font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .auth-tab.active { background: var(--orange); color: #000; }
+  .auth-form { display: none; }
+  .auth-form.active { display: block; }
+  .auth-link { text-align: center; margin-top: 16px; color: var(--text-secondary); font-size: 13px; }
+  .auth-link a { color: var(--orange); text-decoration: none; font-weight: 600; }
+  .password-row { position: relative; }
+  .password-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; border: none; color: var(--text-tertiary); cursor: pointer; font-size: 14px; }
+  .forgot-link { display: block; text-align: right; font-size: 12px; color: var(--orange); margin-top: 6px; text-decoration: none; }
+  .forgot-link:hover { text-decoration: underline; }
+  .loading-overlay { position: fixed; inset: 0; background: rgba(10,10,10,0.8); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 1000; }
+  .loading-overlay.active { display: flex; }
+  .loading-spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<nav class="app-nav">
+  <div class="app-nav-inner">
+    <a href="index.html" class="logo-row">
+      <div class="logo-mark">P</div>
+      <div class="brand-text">
+        <span class="brand">PIRABEL</span>
+        <span class="brand-sub">Logo Remover</span>
+      </div>
+    </a>
+    <a href="index.html" class="icon-btn" title="Accueil">←</a>
+  </div>
+</nav>
+
+<div class="auth-wrap">
+  <div class="auth-logo">
+    <div class="logo-mark">P</div>
+    <div class="auth-title" id="authTitle">Bienvenue</div>
+    <div class="auth-subtitle" id="authSubtitle">Connecte-toi ou crée ton compte</div>
+  </div>
+
+  <div class="auth-tabs">
+    <button class="auth-tab active" data-tab="login">Connexion</button>
+    <button class="auth-tab" data-tab="register">Inscription</button>
+  </div>
+
+  <!-- LOGIN FORM -->
+  <form class="auth-form active" id="loginForm">
+    <div class="form-error" id="loginError"></div>
+    <div class="form-success" id="loginSuccess"></div>
+
+    <div class="form-group">
+      <label class="form-label" for="loginEmail">Email</label>
+      <input class="form-input" type="email" id="loginEmail" placeholder="ton@email.com" autocomplete="email" required>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="loginPassword">Mot de passe</label>
+      <div class="password-row">
+        <input class="form-input" type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" required>
+        <button type="button" class="password-toggle" data-target="loginPassword">👁️</button>
+      </div>
+      <a href="#" class="forgot-link" id="forgotLink">Mot de passe oublié ?</a>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Se connecter</button>
+
+    <div class="auth-link">
+      Pas encore de compte ? <a href="#" data-switch="register">Créer un compte</a>
+    </div>
+  </form>
+
+  <!-- REGISTER FORM -->
+  <form class="auth-form" id="registerForm">
+    <div class="form-error" id="registerError"></div>
+    <div class="form-success" id="registerSuccess"></div>
+
+    <div class="form-group">
+      <label class="form-label" for="registerName">Nom complet</label>
+      <input class="form-input" type="text" id="registerName" placeholder="Ton nom" required>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="registerEmail">Email</label>
+      <input class="form-input" type="email" id="registerEmail" placeholder="ton@email.com" autocomplete="email" required>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="registerPassword">Mot de passe (min. 6 caractères)</label>
+      <div class="password-row">
+        <input class="form-input" type="password" id="registerPassword" placeholder="••••••••" autocomplete="new-password" required minlength="6">
+        <button type="button" class="password-toggle" data-target="registerPassword">👁️</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="registerReferral">Code de parrainage (optionnel)</label>
+      <input class="form-input" type="text" id="registerReferral" placeholder="Code reçu d'un ami" maxlength="10" style="text-transform:uppercase;">
+      <p class="text-tertiary text-sm mt-1">🎁 Recevez 5 images gratuites bonus !</p>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block" id="registerBtn">Créer mon compte</button>
+
+    <p class="text-tertiary text-sm text-center mt-2">
+      En créant un compte, tu acceptes l'utilisation à des fins personnelles.
+    </p>
+
+    <div class="auth-link">
+      Déjà un compte ? <a href="#" data-switch="login">Se connecter</a>
+    </div>
+  </form>
+
+  <!-- FORGOT PASSWORD FORM -->
+  <form class="auth-form" id="forgotForm">
+    <div class="form-error" id="forgotError"></div>
+    <div class="form-success" id="forgotSuccess"></div>
+
+    <p class="text-secondary text-sm mb-3">
+      Entre ton email pour recevoir un lien de réinitialisation.
+    </p>
+
+    <div class="form-group">
+      <label class="form-label" for="forgotEmail">Email</label>
+      <input class="form-input" type="email" id="forgotEmail" placeholder="ton@email.com" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block" id="forgotBtn">📧 Envoyer le lien</button>
+
+    <div class="auth-link">
+      <a href="#" data-switch="login">← Retour à la connexion</a>
+    </div>
+  </form>
+
+  <p class="text-tertiary text-sm text-center mt-3">
+    🔒 Tes comptes sont stockés en sécurité et accessibles depuis tous tes appareils.
+  </p>
+</div>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="auth.js"></script>
+<script>
+(async function() {
+  'use strict';
+
+  const params = new URLSearchParams(window.location.search);
+  const mode = params.get('mode') || 'login';
+  const next = params.get('next') || 'app.html';
+
+  const overlay = document.getElementById('loadingOverlay');
+
+  function showLoading() { overlay.classList.add('active'); }
+  function hideLoading() { overlay.classList.remove('active'); }
+
+  // Init Supabase
+  showLoading();
+  try {
+    await window.PirabelAuth.init();
+  } catch (err) {
+    console.error('Erreur init:', err);
+  }
+  hideLoading();
+
+  // If already logged in, redirect
+  const existingUser = window.PirabelAuth.getCurrentUser();
+  if (existingUser && mode !== 'reset') {
+    showFormMsg('login', '✓ Déjà connecté. Redirection...', 'success');
+    setTimeout(() => window.location.href = next, 600);
+  }
+
+  // Switch tabs
+  function switchTab(tab) {
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+    document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+    document.getElementById(tab + 'Form').classList.add('active');
+
+    const titles = {
+      login: ['Bon retour !', 'Connecte-toi à ton compte'],
+      register: ['Bienvenue', 'Crée ton compte gratuit en 30 secondes'],
+      forgot: ['Mot de passe oublié', 'Reçois un lien de réinitialisation']
+    };
+    if (titles[tab]) {
+      document.getElementById('authTitle').textContent = titles[tab][0];
+      document.getElementById('authSubtitle').textContent = titles[tab][1];
+    }
+  }
+
+  document.querySelectorAll('.auth-tab').forEach(tab => {
+    tab.addEventListener('click', () => switchTab(tab.dataset.tab));
+  });
+
+  document.querySelectorAll('[data-switch]').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      switchTab(link.dataset.switch);
+    });
+  });
+
+  document.getElementById('forgotLink').addEventListener('click', e => {
+    e.preventDefault();
+    switchTab('forgot');
+  });
+
+  // Password toggle
+  document.querySelectorAll('.password-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.target);
+      input.type = input.type === 'password' ? 'text' : 'password';
+      btn.textContent = input.type === 'password' ? '👁️' : '🙈';
+    });
+  });
+
+  function showFormMsg(formPrefix, msg, kind) {
+    const errorEl = document.getElementById(formPrefix + 'Error');
+    const successEl = document.getElementById(formPrefix + 'Success');
+    errorEl.classList.remove('active');
+    successEl.classList.remove('active');
+    if (kind === 'error') {
+      errorEl.textContent = msg;
+      errorEl.classList.add('active');
+    } else {
+      successEl.textContent = msg;
+      successEl.classList.add('active');
+    }
+  }
+
+  // LOGIN
+  document.getElementById('loginForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true;
+    btn.textContent = 'Connexion...';
+    try {
+      await window.PirabelAuth.login(email, password);
+      showFormMsg('login', '✓ Connexion réussie ! Redirection...', 'success');
+      setTimeout(() => window.location.href = next, 800);
+    } catch (err) {
+      showFormMsg('login', err.message, 'error');
+      btn.disabled = false;
+      btn.textContent = 'Se connecter';
+    }
+  });
+
+  // REGISTER
+  document.getElementById('registerForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const name = document.getElementById('registerName').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    const referralCode = document.getElementById('registerReferral').value.trim().toUpperCase();
+    const btn = document.getElementById('registerBtn');
+    btn.disabled = true;
+    btn.textContent = 'Création...';
+    try {
+      await window.PirabelAuth.register(email, password, name);
+
+      // Si code de parrainage, l'appliquer
+      if (referralCode) {
+        try {
+          const result = await window.PirabelAuth.applyReferralCode(referralCode);
+          showFormMsg('register', '🎉 Compte créé ! +5 crédits bonus reçus. Redirection...', 'success');
+        } catch (refErr) {
+          // L'inscription a marché mais le code est invalide
+          console.warn('Code parrainage invalide:', refErr.message);
+          showFormMsg('register', '🎉 Compte créé (code parrainage non valide). Redirection...', 'success');
+        }
+      } else {
+        showFormMsg('register', '🎉 Compte créé ! Redirection...', 'success');
+      }
+
+      setTimeout(() => window.location.href = next, 1200);
+    } catch (err) {
+      showFormMsg('register', err.message, 'error');
+      btn.disabled = false;
+      btn.textContent = 'Créer mon compte';
+    }
+  });
+
+  // FORGOT PASSWORD
+  document.getElementById('forgotForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const email = document.getElementById('forgotEmail').value;
+    const btn = document.getElementById('forgotBtn');
+    btn.disabled = true;
+    btn.textContent = 'Envoi...';
+    try {
+      await window.PirabelAuth.resetPassword(email);
+      showFormMsg('forgot', '✓ Email envoyé ! Vérifie ta boîte mail (et spams).', 'success');
+    } catch (err) {
+      showFormMsg('forgot', err.message, 'error');
+    }
+    btn.disabled = false;
+    btn.textContent = '📧 Envoyer le lien';
+  });
+
+  // Init mode from URL
+  if (mode === 'register') switchTab('register');
+  if (mode === 'forgot') switchTab('forgot');
+
+  // Auto-fill referral code from URL ?ref=XXX
+  const refCode = params.get('ref');
+  if (refCode) {
+    document.getElementById('registerReferral').value = refCode.toUpperCase();
+    switchTab('register');
+    showFormMsg('register', '🎁 Code de parrainage détecté ! Tu recevras 5 crédits bonus.', 'success');
+  }
+})();
+</script>
+</body>
+</html>

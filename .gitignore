@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+.vercel
+.netlify
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Archives
+*.zip
+
+# Old subdirectory
+pirabel-v3-features/
+
+# Environment
+.env
+.env.local
+
+# Sixth
+.sixth/

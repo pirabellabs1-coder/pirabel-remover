@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin · Pirabel</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23FF6B1A'/%3E%3Ctext x='50' y='68' font-family='Arial Black' font-size='60' font-weight='900' text-anchor='middle' fill='%23000'%3EP%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+<style>
+  /* Login screen */
+  .lock-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .lock-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 24px;
+    max-width: 380px;
+    width: 100%;
+    text-align: center;
+  }
+  .lock-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+  .lock-title {
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+  .lock-subtitle {
+    color: var(--text-secondary);
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+  .lock-form { text-align: left; }
+  .attempts-warning {
+    background: rgba(248, 113, 113, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    color: var(--error);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    margin-bottom: 14px;
+    text-align: center;
+    display: none;
+  }
+  .attempts-warning.active { display: block; }
+
+  .lockout-screen {
+    background: rgba(248, 113, 113, 0.05);
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    color: var(--error);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 16px;
+    display: none;
+  }
+  .lockout-screen.active { display: block; }
+  .lockout-time {
+    font-size: 28px;
+    font-weight: 800;
+    margin-top: 8px;
+  }
+
+  /* Admin panel (hidden until logged in) */
+  .admin-panel { display: none; }
+  .admin-panel.active { display: block; }
+
+  .admin-header {
+    background: linear-gradient(135deg, var(--orange) 0%, var(--orange-soft) 100%);
+    color: #000;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 16px;
+    font-weight: 700;
+    text-align: center;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .admin-logout {
+    background: rgba(0, 0, 0, 0.2);
+    color: #000;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .stat-card {
+    background: var(--bg-tertiary);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--orange);
+  }
+
+  .stat-lbl {
+    font-size: 10px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    margin-top: 12px;
+    background: var(--bg-tertiary);
+    border-radius: 10px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  th, td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+
+  td { font-size: 12px; }
+
+  .plan-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+  }
+
+  .plan-tag.free { background: var(--bg-elevated); color: var(--text-secondary); }
+  .plan-tag.pass3j { background: rgba(255, 107, 26, 0.2); color: var(--orange); }
+  .plan-tag.monthly { background: rgba(74, 222, 128, 0.2); color: var(--success); }
+  .plan-tag.payg { background: rgba(96, 165, 250, 0.2); color: var(--info); }
+
+  .change-pwd-section {
+    background: rgba(248, 113, 113, 0.05);
+    border: 1px solid rgba(248, 113, 113, 0.2);
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 12px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--text-tertiary);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<!-- LOCK SCREEN (couche 2 - mot de passe local) -->
+<div class="lock-screen" id="lockScreen">
+  <div class="lock-card">
+    <div class="lock-icon">🔐</div>
+    <div class="lock-title">Accès administrateur</div>
+    <div class="lock-subtitle">Cette zone est protégée. Entre tes identifiants admin.</div>
+
+    <div class="lockout-screen" id="lockoutScreen">
+      🚫 Trop de tentatives échouées<br>
+      Réessaie dans :
+      <div class="lockout-time" id="lockoutTime">--:--</div>
+    </div>
+
+    <div class="attempts-warning" id="attemptsWarning"></div>
+
+    <form class="lock-form" id="loginForm" onsubmit="return false;">
+      <div class="form-group">
+        <label class="form-label">Email admin</label>
+        <input type="email" class="form-input" id="adminEmail" placeholder="admin@pirabellabs.com" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mot de passe</label>
+        <input type="password" class="form-input" id="adminPassword" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="loginBtn">🔓 Se connecter</button>
+    </form>
+
+    <p class="text-tertiary text-sm mt-3">
+      🔧 Première fois ? Voir les identifiants par défaut dans le README
+    </p>
+  </div>
+</div>
+
+<!-- ADMIN PANEL (hidden until logged in) -->
+<div class="admin-panel" id="adminPanel">
+
+  <nav class="app-nav">
+    <div class="app-nav-inner">
+      <a href="index.html" class="logo-row">
+        <div class="logo-mark">P</div>
+        <div class="brand-text">
+          <span class="brand">PIRABEL</span>
+          <span class="brand-sub">Admin</span>
+        </div>
+      </a>
+      <div class="nav-actions">
+        <a href="app.html" class="icon-btn" title="App">📱</a>
+        <button class="icon-btn" id="logoutBtn" title="Déconnexion">🔓</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <div class="admin-header">
+      <span>🔐 Tableau de bord administrateur</span>
+      <button class="admin-logout" onclick="document.getElementById('logoutBtn').click()">Déconnexion</button>
+    </div>
+
+    <div class="card">
+      <p style="font-size:13px; color:var(--text-secondary);">
+        ℹ️ Cette page lit les données stockées localement (utilisateurs créés sur ce navigateur).
+        Pour voir les vrais paiements en production, utilise le <a href="https://app.kkiapay.me/dashboard" target="_blank" style="color:var(--orange);">dashboard Kkiapay</a>.
+      </p>
+    </div>
+
+    <!-- Stats -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">📊 Statistiques</div>
+          <div class="card-subtitle">Vue d'ensemble de ton SaaS</div>
+        </div>
+        <button class="btn" id="refreshBtn" style="width:auto;">↻ Actualiser</button>
+      </div>
+      <div class="stats-grid" id="statsGrid"></div>
+    </div>
+
+    <!-- Users -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">👥 Utilisateurs</div>
+          <div class="card-subtitle">Liste des comptes créés</div>
+        </div>
+        <button class="btn" id="exportUsersBtn" style="width:auto;">📤 Export CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table id="usersTable">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Nom</th>
+              <th>Plan</th>
+              <th>Images</th>
+              <th>Inscrit</th>
+            </tr>
+          </thead>
+          <tbody id="usersBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Transactions -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">💳 Transactions</div>
+          <div class="card-subtitle">Historique des paiements</div>
+        </div>
+        <button class="btn" id="exportTxBtn" style="width:auto;">📤 Export CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table id="txTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Email</th>
+              <th>Plan</th>
+              <th>Montant</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody id="txBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Sécurité -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">🔒 Sécurité du compte admin</div>
+          <div class="card-subtitle">Change ton mot de passe régulièrement</div>
+        </div>
+      </div>
+
+      <div class="change-pwd-section">
+        <div class="form-group">
+          <label class="form-label">Mot de passe actuel</label>
+          <input type="password" class="form-input" id="oldPwd" placeholder="••••••••">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nouveau mot de passe (min 8 caractères)</label>
+          <input type="password" class="form-input" id="newPwd" placeholder="••••••••">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Confirmer le nouveau mot de passe</label>
+          <input type="password" class="form-input" id="newPwd2" placeholder="••••••••">
+        </div>
+        <div class="form-error" id="pwdError"></div>
+        <div class="form-success" id="pwdSuccess"></div>
+        <button class="btn btn-danger btn-block" id="changePwdBtn">🔑 Changer le mot de passe</button>
+      </div>
+    </div>
+
+    <!-- Danger zone -->
+    <div class="card" style="border-color: rgba(248, 113, 113, 0.3);">
+      <div class="card-header">
+        <div>
+          <div class="card-title text-error">⚠️ Zone dangereuse</div>
+          <div class="card-subtitle">Actions irréversibles</div>
+        </div>
+      </div>
+      <button class="btn btn-danger btn-block mb-2" id="exportAllBtn">💾 Tout exporter (sauvegarde JSON)</button>
+      <button class="btn btn-danger btn-block" id="resetAdminBtn">🔄 Réinitialiser le compte admin</button>
+    </div>
+
+    <footer class="app-footer">
+      © 2026 <a href="https://pirabellabs.com">Pirabel Labs</a>
+    </footer>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="config.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  // ============================================================
+  // ADMIN AUTH SYSTEM
+  // ============================================================
+  const ADMIN_KEY = 'pirabel_admin_auth';
+  const ADMIN_SESSION_KEY = 'pirabel_admin_session';
+  const ADMIN_LOCKOUT_KEY = 'pirabel_admin_lockout';
+
+  // Default credentials (will be replaced on first login)
+  // Hash of "admin@pirabellabs.com" + "Pirabel2026!"
+  const DEFAULT_EMAIL = 'admin@pirabellabs.com';
+  const DEFAULT_PASSWORD = 'Pirabel2026!';
+
+  const SESSION_DURATION = 4 * 60 * 60 * 1000; // 4 hours
+  const MAX_ATTEMPTS = 3;
+  const LOCKOUT_DURATION = 15 * 60 * 1000; // 15 minutes
+
+  function adminHash(str) {
+    let h1 = 0, h2 = 0;
+    const salt = 'PIRABEL_ADMIN_SALT_v2_2026';
+    const combined = salt + str + salt + str;
+    for (let i = 0; i < combined.length; i++) {
+      h1 = ((h1 << 5) - h1) + combined.charCodeAt(i);
+      h2 = ((h2 << 7) + h2) ^ combined.charCodeAt(i);
+      h1 |= 0; h2 |= 0;
+    }
+    return h1.toString(36) + '.' + h2.toString(36);
+  }
+
+  function getAdminAuth() {
+    try {
+      const stored = localStorage.getItem(ADMIN_KEY);
+      if (stored) return JSON.parse(stored);
+    } catch (e) {}
+    // Initialize with defaults
+    const init = {
+      email: DEFAULT_EMAIL,
+      passwordHash: adminHash(DEFAULT_PASSWORD),
+      createdAt: Date.now(),
+      isDefault: true
+    };
+    localStorage.setItem(ADMIN_KEY, JSON.stringify(init));
+    return init;
+  }
+
+  function saveAdminAuth(auth) {
+    localStorage.setItem(ADMIN_KEY, JSON.stringify(auth));
+  }
+
+  function getSession() {
+    try {
+      const s = JSON.parse(localStorage.getItem(ADMIN_SESSION_KEY) || 'null');
+      if (!s) return null;
+      if (Date.now() > s.expiresAt) {
+        localStorage.removeItem(ADMIN_SESSION_KEY);
+        return null;
+      }
+      return s;
+    } catch (e) { return null; }
+  }
+
+  function setSession() {
+    localStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({
+      loggedAt: Date.now(),
+      expiresAt: Date.now() + SESSION_DURATION
+    }));
+  }
+
+  function clearSession() {
+    localStorage.removeItem(ADMIN_SESSION_KEY);
+  }
+
+  function getLockout() {
+    try {
+      const l = JSON.parse(localStorage.getItem(ADMIN_LOCKOUT_KEY) || 'null');
+      if (!l) return null;
+      if (Date.now() > l.until) {
+        localStorage.removeItem(ADMIN_LOCKOUT_KEY);
+        return null;
+      }
+      return l;
+    } catch (e) { return null; }
+  }
+
+  function setLockout(attempts) {
+    if (attempts >= MAX_ATTEMPTS) {
+      localStorage.setItem(ADMIN_LOCKOUT_KEY, JSON.stringify({
+        until: Date.now() + LOCKOUT_DURATION,
+        attempts: attempts
+      }));
+    } else {
+      localStorage.setItem(ADMIN_LOCKOUT_KEY, JSON.stringify({
+        until: 0,
+        attempts: attempts
+      }));
+    }
+  }
+
+  function clearLockout() {
+    localStorage.removeItem(ADMIN_LOCKOUT_KEY);
+  }
+
+  // ============================================================
+  // UI UPDATES
+  // ============================================================
+  function showToast(msg, kind) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (kind ? ' ' + kind : '');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function showLockScreen() {
+    document.getElementById('lockScreen').style.display = 'flex';
+    document.getElementById('adminPanel').classList.remove('active');
+    updateLockoutUI();
+  }
+
+  function showAdminPanel() {
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('adminPanel').classList.add('active');
+    renderAll();
+  }
+
+  let lockoutInterval = null;
+
+  function updateLockoutUI() {
+    const lockout = getLockout();
+    const lockoutScreen = document.getElementById('lockoutScreen');
+    const loginForm = document.getElementById('loginForm');
+    const warning = document.getElementById('attemptsWarning');
+
+    if (lockoutInterval) {
+      clearInterval(lockoutInterval);
+      lockoutInterval = null;
+    }
+
+    if (lockout && lockout.until > Date.now()) {
+      // Locked
+      lockoutScreen.classList.add('active');
+      loginForm.style.display = 'none';
+      warning.classList.remove('active');
+
+      const updateTime = () => {
+        const remaining = Math.max(0, lockout.until - Date.now());
+        const minutes = Math.floor(remaining / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+        document.getElementById('lockoutTime').textContent =
+          String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+
+        if (remaining <= 0) {
+          clearLockout();
+          updateLockoutUI();
+        }
+      };
+      updateTime();
+      lockoutInterval = setInterval(updateTime, 1000);
+    } else {
+      lockoutScreen.classList.remove('active');
+      loginForm.style.display = 'block';
+
+      if (lockout && lockout.attempts > 0) {
+        const remaining = MAX_ATTEMPTS - lockout.attempts;
+        warning.textContent = `⚠️ ${lockout.attempts} tentative(s) échouée(s) — ${remaining} restante(s) avant verrouillage`;
+        warning.classList.add('active');
+      } else {
+        warning.classList.remove('active');
+      }
+    }
+  }
+
+  // ============================================================
+  // LOGIN
+  // ============================================================
+  document.getElementById('loginBtn').addEventListener('click', () => {
+    const lockout = getLockout();
+    if (lockout && lockout.until > Date.now()) {
+      showToast('🚫 Compte verrouillé', 'error');
+      return;
+    }
+
+    const email = document.getElementById('adminEmail').value.trim().toLowerCase();
+    const password = document.getElementById('adminPassword').value;
+
+    if (!email || !password) {
+      showToast('Remplis tous les champs', 'error');
+      return;
+    }
+
+    const auth = getAdminAuth();
+    const passwordHash = adminHash(password);
+
+    if (email === auth.email.toLowerCase() && passwordHash === auth.passwordHash) {
+      // Login success
+      clearLockout();
+      setSession();
+      document.getElementById('adminPassword').value = '';
+      showAdminPanel();
+      showToast('✓ Connecté', 'success');
+
+      // Warn if still using default password
+      if (auth.isDefault) {
+        setTimeout(() => {
+          alert('⚠️ Tu utilises encore le mot de passe par défaut.\n\nChange-le maintenant dans la section "Sécurité du compte admin" en bas de la page !');
+        }, 500);
+      }
+    } else {
+      // Login failed
+      const currentLockout = getLockout();
+      const attempts = ((currentLockout && currentLockout.attempts) || 0) + 1;
+      setLockout(attempts);
+      updateLockoutUI();
+
+      if (attempts >= MAX_ATTEMPTS) {
+        showToast('🚫 Trop de tentatives — verrouillé 15 min', 'error');
+      } else {
+        showToast('❌ Identifiants incorrects', 'error');
+      }
+      document.getElementById('adminPassword').value = '';
+    }
+  });
+
+  // Allow Enter key to submit
+  document.getElementById('adminPassword').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('loginBtn').click();
+  });
+
+  // ============================================================
+  // LOGOUT
+  // ============================================================
+  function setupLogout() {
+    const btn = document.getElementById('logoutBtn');
+    if (btn) {
+      btn.addEventListener('click', () => {
+        if (!confirm('Se déconnecter ?')) return;
+        clearSession();
+        showToast('Déconnecté');
+        showLockScreen();
+      });
+    }
+  }
+
+  // ============================================================
+  // CHANGE PASSWORD
+  // ============================================================
+  document.getElementById('changePwdBtn').addEventListener('click', () => {
+    const oldPwd = document.getElementById('oldPwd').value;
+    const newPwd = document.getElementById('newPwd').value;
+    const newPwd2 = document.getElementById('newPwd2').value;
+    const errEl = document.getElementById('pwdError');
+    const succEl = document.getElementById('pwdSuccess');
+
+    errEl.classList.remove('active');
+    succEl.classList.remove('active');
+
+    if (!oldPwd || !newPwd || !newPwd2) {
+      errEl.textContent = 'Remplis tous les champs';
+      errEl.classList.add('active');
+      return;
+    }
+
+    if (newPwd.length < 8) {
+      errEl.textContent = 'Le mot de passe doit faire au moins 8 caractères';
+      errEl.classList.add('active');
+      return;
+    }
+
+    if (newPwd !== newPwd2) {
+      errEl.textContent = 'Les mots de passe ne correspondent pas';
+      errEl.classList.add('active');
+      return;
+    }
+
+    const auth = getAdminAuth();
+    if (adminHash(oldPwd) !== auth.passwordHash) {
+      errEl.textContent = 'Ancien mot de passe incorrect';
+      errEl.classList.add('active');
+      return;
+    }
+
+    auth.passwordHash = adminHash(newPwd);
+    auth.isDefault = false;
+    auth.lastChangedAt = Date.now();
+    saveAdminAuth(auth);
+
+    document.getElementById('oldPwd').value = '';
+    document.getElementById('newPwd').value = '';
+    document.getElementById('newPwd2').value = '';
+
+    succEl.textContent = '✓ Mot de passe changé avec succès';
+    succEl.classList.add('active');
+    showToast('✓ Mot de passe mis à jour', 'success');
+  });
+
+  // ============================================================
+  // RESET ADMIN
+  // ============================================================
+  document.getElementById('resetAdminBtn').addEventListener('click', () => {
+    if (!confirm('⚠️ Réinitialiser le compte admin ?\n\nLe mot de passe sera remis à la valeur par défaut.')) return;
+    if (!confirm('Vraiment sûr ?')) return;
+    localStorage.removeItem(ADMIN_KEY);
+    clearSession();
+    clearLockout();
+    showToast('Admin réinitialisé');
+    setTimeout(() => location.reload(), 800);
+  });
+
+  // ============================================================
+  // RENDER ADMIN DATA
+  // ============================================================
+  function loadUsers() {
+    try { return JSON.parse(localStorage.getItem('pirabel_users') || '{}'); }
+    catch (e) { return {}; }
+  }
+
+  function renderStats() {
+    const users = loadUsers();
+    const userList = Object.values(users);
+    const allTx = userList.flatMap(u => u.transactions || []);
+    const totalRevenue = allTx.reduce((sum, t) => sum + (t.amount || 0), 0);
+    const totalImages = userList.reduce((sum, u) => sum + (u.totalImagesProcessed || 0), 0);
+    const activePass = userList.filter(u => u.planExpiresAt && u.planExpiresAt > Date.now()).length;
+
+    const stats = [
+      { num: userList.length, lbl: 'Utilisateurs' },
+      { num: allTx.length, lbl: 'Paiements' },
+      { num: totalRevenue.toLocaleString() + ' F', lbl: 'Revenus' },
+      { num: totalImages, lbl: 'Images traitées' },
+      { num: activePass, lbl: 'Plans actifs' }
+    ];
+
+    const grid = document.getElementById('statsGrid');
+    grid.innerHTML = stats.map(s => `
+      <div class="stat-card">
+        <div class="stat-num">${s.num}</div>
+        <div class="stat-lbl">${s.lbl}</div>
+      </div>
+    `).join('');
+  }
+
+  function getEffectivePlan(user) {
+    if (user.planExpiresAt && user.planExpiresAt > Date.now() &&
+        (user.plan === 'pass3j' || user.plan === 'monthly')) {
+      return user.plan;
+    }
+    if (user.paygCredits && user.paygCredits > 0) return 'payg';
+    return 'free';
+  }
+
+  function renderUsers() {
+    const users = loadUsers();
+    const tbody = document.getElementById('usersBody');
+    const list = Object.values(users).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+    if (list.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Aucun utilisateur pour l\'instant</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = list.map(u => {
+      const plan = getEffectivePlan(u);
+      const planConfig = window.PIRABEL_CONFIG.PLANS[plan] || { name: 'Inconnu' };
+      const date = u.createdAt ? new Date(u.createdAt).toLocaleDateString('fr-FR') : '-';
+      return `
+        <tr>
+          <td>${u.email}</td>
+          <td>${u.name || '-'}</td>
+          <td><span class="plan-tag ${plan}">${planConfig.icon || ''} ${planConfig.name}</span></td>
+          <td>${u.totalImagesProcessed || 0}</td>
+          <td>${date}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function renderTransactions() {
+    const users = loadUsers();
+    const tbody = document.getElementById('txBody');
+    const allTx = [];
+    Object.values(users).forEach(u => {
+      (u.transactions || []).forEach(t => {
+        allTx.push({ ...t, userEmail: u.email });
+      });
+    });
+    allTx.sort((a, b) => (b.date || 0) - (a.date || 0));
+
+    if (allTx.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Aucune transaction</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = allTx.map(t => `
+      <tr>
+        <td>${new Date(t.date).toLocaleString('fr-FR')}</td>
+        <td>${t.userEmail}</td>
+        <td><span class="plan-tag ${t.planId}">${t.planName}</span></td>
+        <td>${(t.amount || 0).toLocaleString()} F</td>
+        <td>${t.status === 'completed' ? '✓' : '⏳'}</td>
+      </tr>
+    `).join('');
+  }
+
+  function renderAll() {
+    renderStats();
+    renderUsers();
+    renderTransactions();
+  }
+
+  document.getElementById('refreshBtn').addEventListener('click', () => {
+    renderAll();
+    showToast('✓ Données actualisées', 'success');
+  });
+
+  // ============================================================
+  // EXPORTS
+  // ============================================================
+  function downloadCsv(filename, rows) {
+    const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  document.getElementById('exportUsersBtn').addEventListener('click', () => {
+    const users = loadUsers();
+    const list = Object.values(users);
+    const rows = [['Email', 'Nom', 'Plan', 'Images traitees', 'Inscrit le']];
+    list.forEach(u => {
+      const plan = getEffectivePlan(u);
+      rows.push([
+        u.email,
+        u.name || '',
+        plan,
+        u.totalImagesProcessed || 0,
+        u.createdAt ? new Date(u.createdAt).toISOString() : ''
+      ]);
+    });
+    downloadCsv('pirabel-users-' + new Date().toISOString().split('T')[0] + '.csv', rows);
+    showToast('✓ Export téléchargé', 'success');
+  });
+
+  document.getElementById('exportTxBtn').addEventListener('click', () => {
+    const users = loadUsers();
+    const rows = [['Date', 'Email', 'Plan', 'Montant', 'TransactionID', 'Statut']];
+    Object.values(users).forEach(u => {
+      (u.transactions || []).forEach(t => {
+        rows.push([
+          new Date(t.date).toISOString(),
+          u.email,
+          t.planName,
+          t.amount,
+          t.id,
+          t.status
+        ]);
+      });
+    });
+    downloadCsv('pirabel-transactions-' + new Date().toISOString().split('T')[0] + '.csv', rows);
+    showToast('✓ Export téléchargé', 'success');
+  });
+
+  document.getElementById('exportAllBtn').addEventListener('click', () => {
+    const data = {
+      version: '2.0',
+      exportedAt: new Date().toISOString(),
+      users: loadUsers()
+    };
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'pirabel-backup-' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showToast('✓ Sauvegarde complète téléchargée', 'success');
+  });
+
+  // ============================================================
+  // INIT
+  // ============================================================
+  setupLogout();
+
+  // Check if already logged in
+  if (getSession()) {
+    showAdminPanel();
+  } else {
+    showLockScreen();
+  }
+})();
+</script>
+</body>
+</html>

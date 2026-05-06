@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0a0a">
+<title>Mon espace · Pirabel Remover</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23FF6B1A'/%3E%3Ctext x='50' y='68' font-family='Arial Black' font-size='60' font-weight='900' text-anchor='middle' fill='%23000'%3EP%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
+  .stat-card { background: var(--bg-tertiary); border-radius: 12px; padding: 14px; text-align: center; }
+  .stat-num { font-size: 24px; font-weight: 800; color: var(--orange); }
+  .stat-lbl { font-size: 11px; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+  .plan-status-card {
+    background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-elevated) 100%);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .plan-status-card.pro { border-color: var(--orange); box-shadow: 0 4px 24px rgba(255,107,26,0.15); }
+  .plan-status-icon { font-size: 32px; margin-bottom: 6px; }
+  .plan-status-name { font-size: 22px; font-weight: 800; }
+  .plan-status-detail { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+  .plan-status-progress { background: var(--bg-elevated); border-radius: 999px; height: 6px; margin-top: 12px; overflow: hidden; }
+  .plan-status-progress-fill { background: var(--orange); height: 100%; transition: width 0.3s; border-radius: 999px; }
+
+  .plans-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .pay-plan {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    transition: all 0.15s;
+  }
+  .pay-plan:hover { border-color: var(--orange); }
+  .pay-plan.featured { border-color: var(--orange); box-shadow: 0 4px 16px rgba(255,107,26,0.1); }
+
+  .pay-plan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .pay-plan-name { font-weight: 700; font-size: 14px; }
+  .pay-plan-icon-large { font-size: 22px; }
+  .pay-plan-price { font-size: 26px; font-weight: 800; color: var(--orange); margin-bottom: 4px; }
+  .pay-plan-price span { font-size: 12px; color: var(--text-secondary); margin-left: 4px; font-weight: 500; }
+  .pay-plan-desc { font-size: 11px; color: var(--text-tertiary); margin-bottom: 12px; line-height: 1.4; }
+
+  .tx-list { max-height: 400px; overflow-y: auto; }
+  .tx-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .tx-item:last-child { border-bottom: none; }
+  .tx-icon { font-size: 24px; flex-shrink: 0; }
+  .tx-info { flex: 1; min-width: 0; }
+  .tx-name { font-weight: 600; font-size: 13px; }
+  .tx-date { font-size: 11px; color: var(--text-tertiary); }
+  .tx-amount { font-weight: 700; color: var(--orange); font-size: 14px; }
+  .tx-empty { text-align: center; padding: 32px 16px; color: var(--text-tertiary); font-size: 13px; }
+
+  .menu-section { margin-bottom: 16px; }
+  .menu-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px;
+    background: var(--bg-tertiary);
+    border-radius: 10px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid transparent;
+  }
+  .menu-item:hover { border-color: var(--orange); }
+  .menu-icon { font-size: 18px; }
+  .menu-text { flex: 1; font-size: 13px; font-weight: 600; }
+  .menu-arrow { color: var(--text-tertiary); }
+</style>
+</head>
+<body>
+
+<nav class="app-nav">
+  <div class="app-nav-inner">
+    <a href="index.html" class="logo-row">
+      <div class="logo-mark">P</div>
+      <div class="brand-text">
+        <span class="brand">PIRABEL</span>
+        <span class="brand-sub">Mon espace</span>
+      </div>
+    </a>
+    <div class="nav-actions">
+      <button class="icon-btn theme-toggle-btn" id="themeToggle" title="Mode clair/sombre">☀️</button>
+      <button class="icon-btn lang-toggle-btn" id="langToggle" title="Langue">🇬🇧 EN</button>
+      <a href="app.html" class="icon-btn" title="App">📱</a>
+      <button class="icon-btn" id="logoutBtn" title="Déconnexion">🚪</button>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- User welcome -->
+  <div class="card">
+    <div style="display:flex; align-items:center; gap:14px;">
+      <div style="width:54px; height:54px; border-radius:50%; background:var(--orange); color:#000; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:22px;" id="userAvatar">U</div>
+      <div style="flex:1;">
+        <div id="userName" style="font-weight:800; font-size:18px;">User</div>
+        <div id="userEmail" style="font-size:13px; color:var(--text-secondary);">user@email.com</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Plan status -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">Mon plan actuel</div>
+      </div>
+    </div>
+    <div class="plan-status-card" id="planStatusCard">
+      <div class="plan-status-icon" id="planIcon">🆓</div>
+      <div class="plan-status-name" id="planName">Gratuit</div>
+      <div class="plan-status-detail" id="planDetail">10 / 10 images restantes ce mois</div>
+      <div class="plan-status-progress" id="planProgress" style="display:none;">
+        <div class="plan-status-progress-fill" id="planProgressFill" style="width:100%;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📊 Mes statistiques</div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-num" id="statTotal">0</div>
+        <div class="stat-lbl">Images traitées</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statThisMonth">0</div>
+        <div class="stat-lbl">Ce mois</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statCredits">0</div>
+        <div class="stat-lbl">Crédits PAYG</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statPaid">0</div>
+        <div class="stat-lbl">FCFA dépensés</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Buy plans -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">💳 Acheter / Renouveler</div>
+    </div>
+    <div class="plans-row" id="plansRow"></div>
+    <p style="text-align:center; margin-top:14px; color:var(--text-tertiary); font-size:11px;">
+      💳 Wave · Orange Money · MTN · Moov · Carte bancaire
+    </p>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- PARRAINAGE -->
+  <!-- ============================================ -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">🎁 Programme de parrainage</div>
+        <div class="card-subtitle">Gagne 5 images gratuites pour chaque ami invité</div>
+      </div>
+    </div>
+
+    <div style="background:linear-gradient(135deg, rgba(255,107,26,0.1), rgba(255,107,26,0.05)); border:1px solid rgba(255,107,26,0.3); border-radius:12px; padding:16px; margin-bottom:12px;">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+        <div style="font-size:36px;">🎉</div>
+        <div>
+          <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:1px;">Ton code de parrainage</div>
+          <div style="font-size:24px; font-weight:800; letter-spacing:3px; color:var(--orange);" id="referralCode">------</div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-primary" id="copyReferralBtn" style="flex:1;">📋 Copier le lien</button>
+        <button class="btn" id="shareReferralBtn" style="flex:1;">📲 Partager</button>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px;">
+      <div style="background:var(--bg-tertiary); padding:12px; border-radius:10px; text-align:center;">
+        <div style="font-size:24px; font-weight:800; color:var(--orange);" id="referralCount">0</div>
+        <div style="font-size:11px; color:var(--text-secondary);">Personnes parrainées</div>
+      </div>
+      <div style="background:var(--bg-tertiary); padding:12px; border-radius:10px; text-align:center;">
+        <div style="font-size:24px; font-weight:800; color:var(--success);" id="referralEarned">0</div>
+        <div style="font-size:11px; color:var(--text-secondary);">Crédits gagnés</div>
+      </div>
+    </div>
+
+    <p class="text-tertiary text-sm">💡 Ton ami doit s'inscrire avec ton code et tu reçois <strong>+5 crédits</strong> dès qu'il valide son compte. Lui aussi reçoit +5 crédits.</p>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- CODE PROMO -->
+  <!-- ============================================ -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">🎫 Code promo</div>
+        <div class="card-subtitle">Tu as un code ? Active-le ici</div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:8px;">
+      <input class="form-input" type="text" id="promoInput" placeholder="ENTRER UN CODE" style="flex:1; text-transform:uppercase; letter-spacing:2px;">
+      <button class="btn btn-primary" id="redeemPromoBtn" style="width:auto; padding:0 20px;">Activer</button>
+    </div>
+    <div class="form-error mt-2" id="promoError"></div>
+    <div class="form-success mt-2" id="promoSuccess"></div>
+
+    <p class="text-tertiary text-sm mt-2">
+      💡 Codes actuels : <strong>BIENVENUE</strong> · <strong>LANCEMENT</strong> · <strong>PIRABEL2026</strong>
+    </p>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- STATISTIQUES -->
+  <!-- ============================================ -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">📈 Mes statistiques</div>
+        <div class="card-subtitle">Activité des 30 derniers jours</div>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:8px; margin-bottom:14px;">
+      <div style="background:var(--bg-tertiary); padding:12px; border-radius:10px; text-align:center;">
+        <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase;">Économisé</div>
+        <div style="font-size:18px; font-weight:800; color:var(--success); margin-top:4px;" id="savingsValue">0 F</div>
+      </div>
+      <div style="background:var(--bg-tertiary); padding:12px; border-radius:10px; text-align:center;">
+        <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase;">Moyenne/jour</div>
+        <div style="font-size:18px; font-weight:800; color:var(--orange); margin-top:4px;" id="avgPerDay">0</div>
+      </div>
+      <div style="background:var(--bg-tertiary); padding:12px; border-radius:10px; text-align:center;">
+        <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase;">Pic</div>
+        <div style="font-size:18px; font-weight:800; color:var(--info); margin-top:4px;" id="peakDay">0</div>
+      </div>
+    </div>
+
+    <canvas id="statsChart" style="width:100%; max-height:200px; background:var(--bg-tertiary); border-radius:10px; padding:12px;"></canvas>
+  </div>
+
+  <!-- Transactions -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">📜 Historique paiements</div>
+    </div>
+    <div class="tx-list" id="txList"></div>
+  </div>
+
+  <!-- Menu -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">⚙️ Paramètres</div>
+    </div>
+    <a href="app.html" class="menu-item">
+      <span class="menu-icon">📱</span>
+      <span class="menu-text">Lancer l'application</span>
+      <span class="menu-arrow">›</span>
+    </a>
+    <button class="menu-item" id="changePasswordBtn" style="border:none; width:100%; text-align:left; font-family:inherit;">
+      <span class="menu-icon">🔒</span>
+      <span class="menu-text">Changer mon mot de passe</span>
+      <span class="menu-arrow">›</span>
+    </button>
+    <a href="index.html#faq" class="menu-item">
+      <span class="menu-icon">❓</span>
+      <span class="menu-text">FAQ et support</span>
+      <span class="menu-arrow">›</span>
+    </a>
+    <button class="menu-item" id="logoutBtn2" style="border:none; width:100%; text-align:left; font-family:inherit; color:var(--error);">
+      <span class="menu-icon">🚪</span>
+      <span class="menu-text">Se déconnecter</span>
+      <span class="menu-arrow">›</span>
+    </button>
+  </div>
+
+  <footer class="app-footer">
+    Made by <a href="https://pirabellabs.com" target="_blank">Pirabel Labs</a> · Cotonou, Bénin
+  </footer>
+</div>
+
+<!-- Change password modal -->
+<div class="modal" id="passwordModal">
+  <div class="modal-content">
+    <div class="modal-title">
+      <span>Changer mon mot de passe</span>
+      <button class="modal-close" data-close="passwordModal">×</button>
+    </div>
+    <form id="passwordForm">
+      <div class="form-error" id="pwError"></div>
+      <div class="form-success" id="pwSuccess"></div>
+      <div class="form-group" style="display:none;">
+        <input class="form-input" type="password" id="oldPassword">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nouveau mot de passe</label>
+        <input class="form-input" type="password" id="newPassword" required minlength="6">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Mettre à jour</button>
+    </form>
+  </div>
+</div>
+
+<!-- Payment success modal -->
+<div class="modal" id="paySuccessModal">
+  <div class="modal-content text-center">
+    <div style="font-size: 60px; margin-bottom: 16px;">🎉</div>
+    <h2 class="gradient-text" style="font-size: 24px; margin-bottom: 12px;">Paiement réussi !</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 20px;" id="paySuccessText">Ton plan a été activé.</p>
+    <a href="app.html" class="btn btn-primary btn-block btn-large">🚀 Lancer l'application</a>
+    <button class="btn btn-block" style="margin-top:8px;" onclick="document.getElementById('paySuccessModal').classList.remove('active')">Fermer</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="i18n.js"></script>
+<script src="theme.js"></script>
+<script src="auth.js"></script>
+<script src="payment.js"></script>
+<script>
+// Theme & lang toggles
+document.getElementById('themeToggle').addEventListener('click', () => window.PirabelTheme.toggleTheme());
+document.getElementById('langToggle').addEventListener('click', () => window.PirabelI18n.toggleLang());
+</script>
+<script>
+(async function() {
+  // Require auth (async)
+  const user = await window.PirabelAuth.requireAuth();
+  if (!user) return;
+
+  function showToast(msg, kind) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (kind ? ' ' + kind : '');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
+
+  function formatDate(ts) {
+    return new Date(ts).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function formatRemaining(ms) {
+    if (ms <= 0) return 'Expiré';
+    const days = Math.floor(ms / (1000*60*60*24));
+    const hours = Math.floor((ms % (1000*60*60*24)) / (1000*60*60));
+    const minutes = Math.floor((ms % (1000*60*60)) / (1000*60));
+    if (days > 0) return days + 'j ' + hours + 'h restants';
+    if (hours > 0) return hours + 'h ' + minutes + 'min restants';
+    return minutes + ' min restantes';
+  }
+
+  async function render() {
+    await window.PirabelAuth.refreshProfile();
+    const u = window.PirabelAuth.getCurrentUser();
+    if (!u) return;
+
+    // User info
+    const initials = u.name.split(' ').map(s => s[0]).join('').toUpperCase().substring(0, 2);
+    document.getElementById('userAvatar').textContent = initials;
+    document.getElementById('userName').textContent = u.name;
+    document.getElementById('userEmail').textContent = u.email;
+
+    // Plan status
+    const plan = window.PirabelAuth.getEffectivePlan();
+    const card = document.getElementById('planStatusCard');
+    const progress = document.getElementById('planProgress');
+    const progressFill = document.getElementById('planProgressFill');
+    document.getElementById('planIcon').textContent = plan.icon || '🆓';
+    document.getElementById('planName').textContent = plan.name || 'Gratuit';
+
+    if (plan.unlimited) {
+      card.classList.add('pro');
+      document.getElementById('planDetail').textContent = '✓ Images illimitées · ' + formatRemaining(plan.remainingMs);
+      progress.style.display = 'none';
+    } else if (plan.type === 'payg') {
+      card.classList.add('pro');
+      document.getElementById('planDetail').textContent = plan.credits + ' crédit(s) PAYG + ' + plan.freeRemaining + ' images gratuites ce mois';
+      progress.style.display = 'none';
+    } else {
+      card.classList.remove('pro');
+      const used = plan.monthlyUsed;
+      const total = plan.monthlyTotal;
+      const remaining = plan.freeRemaining;
+      document.getElementById('planDetail').textContent = remaining + ' / ' + total + ' images restantes ce mois';
+      progress.style.display = 'block';
+      progressFill.style.width = ((remaining/total)*100) + '%';
+      if (remaining <= 0) progressFill.style.background = 'var(--error)';
+      else if (remaining <= 3) progressFill.style.background = 'var(--warning)';
+    }
+
+    // Stats
+    document.getElementById('statTotal').textContent = u.totalImagesProcessed || 0;
+    document.getElementById('statThisMonth').textContent = u.monthlyUsage || 0;
+    document.getElementById('statCredits').textContent = u.paygCredits || 0;
+
+    // Transactions (loaded async from Supabase)
+    const txs = await window.PirabelAuth.getTransactions();
+    const totalPaid = txs.reduce((sum, tx) => sum + (tx.amount || 0), 0);
+    document.getElementById('statPaid').textContent = totalPaid.toLocaleString('fr-FR');
+
+    renderPlansToBuy();
+    renderTransactions(txs);
+    renderReferral();
+    renderStats();
+  }
+
+  // ============================================================
+  // RENDER PARRAINAGE
+  // ============================================================
+  function renderReferral() {
+    const info = window.PirabelAuth.getReferralInfo();
+    if (!info) return;
+    document.getElementById('referralCode').textContent = info.code || '------';
+    document.getElementById('referralCount').textContent = info.count || 0;
+    document.getElementById('referralEarned').textContent = ((info.count || 0) * 5);
+  }
+
+  document.getElementById('copyReferralBtn').addEventListener('click', async () => {
+    const info = window.PirabelAuth.getReferralInfo();
+    if (!info || !info.shareUrl) return;
+    const text = `🎁 Rejoins Pirabel Remover et obtiens 5 images gratuites !\n\nUtilise mon code : ${info.code}\n\n👉 ${info.shareUrl}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      showToast('✓ Lien copié !', 'success');
+    } catch (e) {
+      showToast('Impossible de copier', 'error');
+    }
+  });
+
+  document.getElementById('shareReferralBtn').addEventListener('click', async () => {
+    const info = window.PirabelAuth.getReferralInfo();
+    if (!info || !info.shareUrl) return;
+    const text = `🎁 Rejoins Pirabel Remover et obtiens 5 images gratuites !\n\nCode : ${info.code}\n\n${info.shareUrl}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Pirabel Remover',
+          text: text,
+          url: info.shareUrl
+        });
+      } catch (e) { /* User cancelled */ }
+    } else {
+      // Fallback : copier
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('✓ Lien copié, partage-le !', 'success');
+      } catch (e) {
+        showToast('Lien : ' + info.shareUrl);
+      }
+    }
+  });
+
+  // ============================================================
+  // CODE PROMO
+  // ============================================================
+  document.getElementById('redeemPromoBtn').addEventListener('click', async () => {
+    const code = document.getElementById('promoInput').value.trim().toUpperCase();
+    const errEl = document.getElementById('promoError');
+    const sucEl = document.getElementById('promoSuccess');
+    errEl.classList.remove('active');
+    sucEl.classList.remove('active');
+
+    if (!code) {
+      errEl.textContent = 'Entre un code';
+      errEl.classList.add('active');
+      return;
+    }
+
+    const btn = document.getElementById('redeemPromoBtn');
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    try {
+      const result = await window.PirabelAuth.redeemPromoCode(code);
+      let msg = '🎉 Code activé ! ';
+      if (result.bonus_credits) msg += `+${result.bonus_credits} crédits. `;
+      if (result.bonus_days) msg += `+${result.bonus_days} jours de Pass. `;
+      sucEl.textContent = msg;
+      sucEl.classList.add('active');
+      document.getElementById('promoInput').value = '';
+      showToast('🎉 ' + msg, 'success');
+      await render();
+    } catch (e) {
+      errEl.textContent = '❌ ' + e.message;
+      errEl.classList.add('active');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Activer';
+    }
+  });
+
+  // ============================================================
+  // STATISTIQUES (graphique simple)
+  // ============================================================
+  async function renderStats() {
+    const stats = await window.PirabelAuth.getStats30Days();
+
+    // Économies
+    const savings = window.PirabelAuth.getSavings();
+    document.getElementById('savingsValue').textContent = savings.toLocaleString('fr-FR') + ' F';
+
+    // Moyenne par jour
+    const totalImages = stats.reduce((sum, s) => sum + s.images_processed, 0);
+    const avgPerDay = stats.length > 0 ? (totalImages / stats.length).toFixed(1) : '0';
+    document.getElementById('avgPerDay').textContent = avgPerDay;
+
+    // Pic
+    const peak = stats.reduce((max, s) => Math.max(max, s.images_processed), 0);
+    document.getElementById('peakDay').textContent = peak;
+
+    // Graphique simple sur canvas
+    const canvas = document.getElementById('statsChart');
+    if (!canvas) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = canvas.offsetWidth * dpr;
+    canvas.height = 200 * dpr;
+    canvas.style.height = '200px';
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+
+    const w = canvas.offsetWidth;
+    const h = 200;
+    ctx.clearRect(0, 0, w, h);
+
+    if (stats.length === 0) {
+      ctx.fillStyle = '#6a6a6a';
+      ctx.font = '13px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Aucune activité pour le moment', w/2, h/2);
+      return;
+    }
+
+    // Construire 30 jours avec valeurs
+    const days = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      const stat = stats.find(s => s.date === dateStr);
+      days.push({ date: dateStr, count: stat ? stat.images_processed : 0 });
+    }
+
+    const maxCount = Math.max(1, ...days.map(d => d.count));
+    const barW = w / 30;
+    const padding = 20;
+
+    days.forEach((day, i) => {
+      const barH = (day.count / maxCount) * (h - padding * 2);
+      const x = i * barW + 2;
+      const y = h - padding - barH;
+      ctx.fillStyle = day.count > 0 ? '#FF6B1A' : '#2a2a2a';
+      ctx.fillRect(x, y, barW - 4, barH || 2);
+    });
+
+    // Labels axes
+    ctx.fillStyle = '#6a6a6a';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('Il y a 30j', 0, h - 5);
+    ctx.textAlign = 'right';
+    ctx.fillText('Aujourd\'hui', w, h - 5);
+  }
+
+  function renderPlansToBuy() {
+    const plans = window.PIRABEL_CONFIG.PLANS;
+    const container = document.getElementById('plansRow');
+    container.innerHTML = '';
+    ['payg', 'payg10', 'pass3j', 'monthly'].forEach(planId => {
+      const p = plans[planId];
+      const div = document.createElement('div');
+      div.className = 'pay-plan' + (planId === 'pass3j' ? ' featured' : '');
+      const badge = p.badge ? `<span class="pack-badge">${p.badge}</span>` : (planId === 'pass3j' ? '<span class="pack-badge" style="background:var(--orange);">Populaire</span>' : '');
+      div.innerHTML = `
+        <div class="pay-plan-header">
+          <div class="pay-plan-name">${p.icon} ${p.name} ${badge}</div>
+        </div>
+        <div class="pay-plan-price">${p.price.toLocaleString('fr-FR')} <span>FCFA</span></div>
+        <div class="pay-plan-desc">${p.desc}</div>
+        <button class="btn btn-primary btn-block buy-btn" data-plan="${planId}">💳 Acheter</button>
+      `;
+      container.appendChild(div);
+    });
+
+    document.querySelectorAll('.buy-btn').forEach(btn => {
+      btn.addEventListener('click', () => buyPlan(btn.dataset.plan));
+    });
+  }
+
+  function renderTransactions(txs) {
+    const container = document.getElementById('txList');
+    if (!txs || txs.length === 0) {
+      container.innerHTML = '<div class="tx-empty">Aucune transaction pour le moment</div>';
+      return;
+    }
+    container.innerHTML = '';
+    txs.forEach(tx => {
+      const planConfig = window.PIRABEL_CONFIG.PLANS[tx.planId] || {};
+      const div = document.createElement('div');
+      div.className = 'tx-item';
+      div.innerHTML = `
+        <div class="tx-icon">${planConfig.icon || '💳'}</div>
+        <div class="tx-info">
+          <div class="tx-name">${tx.planName}</div>
+          <div class="tx-date">${formatDate(tx.date)} · Kkiapay</div>
+        </div>
+        <div class="tx-amount">${tx.amount.toLocaleString('fr-FR')} F</div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  async function buyPlan(planId) {
+    const plan = window.PIRABEL_CONFIG.PLANS[planId];
+    if (!plan) return;
+
+    showToast('💳 Chargement du paiement...', 'info');
+
+    try {
+      await window.PirabelPayment.payForPlan(planId, {
+        onSuccess: async (response, planId, updatedUser) => {
+          const planName = window.PIRABEL_CONFIG.PLANS[planId].name;
+          document.getElementById('paySuccessText').textContent = `Ton plan "${planName}" a été activé avec succès !`;
+          document.getElementById('paySuccessModal').classList.add('active');
+          await render();
+        },
+        onFailure: (err) => {
+          showToast('❌ Paiement annulé ou échoué', 'error');
+        }
+      });
+    } catch (err) {
+      showToast('❌ ' + err.message, 'error');
+    }
+  }
+
+  // Logout (async)
+  async function doLogout() {
+    if (!confirm('Te déconnecter ?')) return;
+    await window.PirabelAuth.logout();
+    window.location.href = 'index.html';
+  }
+  document.getElementById('logoutBtn').addEventListener('click', doLogout);
+  document.getElementById('logoutBtn2').addEventListener('click', doLogout);
+
+  // Change password (async, simplified for Supabase: just new password)
+  document.getElementById('changePasswordBtn').addEventListener('click', () => {
+    document.getElementById('passwordModal').classList.add('active');
+  });
+
+  document.querySelectorAll('[data-close]').forEach(btn => {
+    btn.addEventListener('click', () => document.getElementById(btn.dataset.close).classList.remove('active'));
+  });
+  document.querySelectorAll('.modal').forEach(modal => {
+    modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('active'); });
+  });
+
+  document.getElementById('passwordForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const newP = document.getElementById('newPassword').value;
+    const errEl = document.getElementById('pwError');
+    const sucEl = document.getElementById('pwSuccess');
+    errEl.classList.remove('active');
+    sucEl.classList.remove('active');
+    try {
+      await window.PirabelAuth.updatePassword(newP);
+      sucEl.textContent = '✓ Mot de passe modifié';
+      sucEl.classList.add('active');
+      document.getElementById('oldPassword').value = '';
+      document.getElementById('newPassword').value = '';
+      setTimeout(() => document.getElementById('passwordModal').classList.remove('active'), 1500);
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.classList.add('active');
+    }
+  });
+
+  // Auto-launch payment if URL has ?plan=xxx
+  const params = new URLSearchParams(window.location.search);
+  const autoPlan = params.get('plan');
+  if (autoPlan && window.PIRABEL_CONFIG.PLANS[autoPlan] && autoPlan !== 'free') {
+    setTimeout(() => buyPlan(autoPlan), 800);
+    window.history.replaceState({}, '', 'dashboard.html');
+  }
+
+  window.PirabelPayment.preload();
+
+  await render();
+  setInterval(render, 60000);
+})();
+</script>
+</body>
+</html>
